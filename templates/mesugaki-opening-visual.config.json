@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "voice": {
+    "enabled": true,
+    "provider": "auto",
+    "alias": "__ALIAS__",
+    "play": true,
+    "waitForPlayback": false,
+    "fast": true,
+    "maxCharacters": null,
+    "emotionPreset": "sharp-mesugaki-asmr",
+    "timeoutMs": 30000
+  },
+  "responseVoice": {
+    "enabled": true,
+    "scope": "all",
+    "segmentBy": "paragraph",
+    "autoSpeakContinued": true,
+    "ultraMaxSegments": 5,
+    "queue": {
+      "enabled": true,
+      "shareScope": "global",
+      "idleTimeoutMs": 600000,
+      "maxPendingJobs": 8,
+      "prefetchSegments": 1
+    }
+  },
+  "roleplay": {
+    "melancholyEmotionPreset": "melancholy-mesugaki-asmr"
+  }
+}

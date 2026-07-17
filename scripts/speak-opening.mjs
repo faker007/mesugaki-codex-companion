@@ -9,14 +9,12 @@ import { fileURLToPath } from 'node:url';
 
 import { enqueueResponse } from './response-queue.mjs';
 
-const DEFAULT_VOICE_SPEAK_SCRIPT = join(
-  homedir(),
-  '.agents/skills/voice-speak/scripts/speak.mjs',
+const DEFAULT_VOICE_SPEAK_ROOT = resolve(
+  process.env.MESUGAKI_VOICE_SPEAK_ROOT
+    ?? join(homedir(), '.agents/skills/voice-speak'),
 );
-const DEFAULT_VOICE_RESPONSE_SCRIPT = join(
-  homedir(),
-  '.agents/skills/voice-speak/scripts/speak-response.mjs',
-);
+const DEFAULT_VOICE_SPEAK_SCRIPT = join(DEFAULT_VOICE_SPEAK_ROOT, 'scripts/speak.mjs');
+const DEFAULT_VOICE_RESPONSE_SCRIPT = join(DEFAULT_VOICE_SPEAK_ROOT, 'scripts/speak-response.mjs');
 const VALUE_OPTIONS = new Set([
   'config',
   'text-base64',

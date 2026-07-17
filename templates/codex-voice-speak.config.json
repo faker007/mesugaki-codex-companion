@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "defaultProvider": "__PROVIDER__",
+  "providerPriority": ["__PROVIDER__"],
+  "defaultVoices": {
+    "__PROVIDER__": "__ALIAS__"
+  },
+  "maxCharacters": 500,
+  "absoluteMaxCharacters": 2000,
+  "timeoutMs": 30000,
+  "playback": {
+    "enabled": true,
+    "waitForCompletion": true,
+    "command": "/usr/bin/afplay",
+    "argsBefore": []
+  },
+  "providers": {
+    "__PROVIDER__": {}
+  },
+  "voices": {
+    "__ALIAS__": {
+      "provider": "__PROVIDER__",
+      "voiceId": "__VOICE_ID__",
+      "modelId": "__MODEL_ID__"
+    }
+  }
+}

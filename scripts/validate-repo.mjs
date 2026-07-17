@@ -5,8 +5,16 @@ import { extname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
-const requiredFiles = ['SKILL.md', 'agents/openai.yaml', 'package.json'];
-const textExtensions = new Set(['.json', '.md', '.mjs', '.yaml', '.yml']);
+const requiredFiles = [
+  'SKILL.md',
+  'README.md',
+  'agents/openai.yaml',
+  'package.json',
+  'templates/README.md.tmpl',
+  'templates/codex-voice-speak.config.json',
+  'templates/mesugaki-opening-visual.config.json',
+];
+const textExtensions = new Set(['.json', '.md', '.mjs', '.tmpl', '.yaml', '.yml']);
 const supportedImages = new Set(['.png', '.jpg', '.jpeg', '.webp', '.avif']);
 const failures = [];
 let textFileCount = 0;

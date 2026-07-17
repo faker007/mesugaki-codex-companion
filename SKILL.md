@@ -55,7 +55,7 @@ Route the request before doing any visual or synthesis work. A new opener select
 
 Before running bundled commands, resolve `MESUGAKI_SKILL_ROOT` to the directory containing this `SKILL.md`. Resolve `MESUGAKI_VOICE_SPEAK_ROOT` from the installed `voice-speak` skill when replaying audio. Never assume a fixed macOS username or repository checkout path.
 
-When maintaining or installing this skill from its source repository, read [references/repository-management.md](references/repository-management.md).
+When maintaining or installing this skill from its source repository, read [references/repository-management.md](references/repository-management.md). Use `pnpm run setup` for interactive onboarding, `pnpm run doctor` for zero-network diagnostics, and `pnpm run readme:random` to rotate the repository-relative README hero image.
 
 Before routing, detect the optional **melancholy modifier** from requests such as `멜랑꼴리`, `쓸쓸하게`, `외로운 롤플레이`, `새벽 감성`, `가끔 진심이 새는 루나`, `wistful`, or `late-night roleplay`. When present, read [references/melancholy-roleplay.md](references/melancholy-roleplay.md), draft with its dialogue engine, and add `--melancholy` to any new synthesis wrapper invocation. The modifier never changes replay into synthesis and never overrides an explicit silent or text-only request.
 

@@ -9,10 +9,11 @@ import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const DEFAULT_RESPONSE_SCRIPT = join(
-  homedir(),
-  '.agents/skills/voice-speak/scripts/speak-response.mjs',
+const DEFAULT_VOICE_SPEAK_ROOT = resolve(
+  process.env.MESUGAKI_VOICE_SPEAK_ROOT
+    ?? join(homedir(), '.agents/skills/voice-speak'),
 );
+const DEFAULT_RESPONSE_SCRIPT = join(DEFAULT_VOICE_SPEAK_ROOT, 'scripts/speak-response.mjs');
 const DEFAULT_IDLE_TIMEOUT_MS = 600_000;
 const DEFAULT_MAX_PENDING_JOBS = 4;
 const MAX_MESSAGE_BYTES = 2_097_152;
