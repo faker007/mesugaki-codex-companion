@@ -1,0 +1,7 @@
+interface:
+  display_name: "Mesugaki Opening Visual"
+  short_description: "쿠로세 루나 오프닝·전역 음성 Queue·재생"
+  default_prompt: "Use $mesugaki-opening-visual to start or continue Kurose Runa with a voiced local opener, one cross-thread global paragraph queue, replay, or capped response playback."
+
+policy:
+  allow_implicit_invocation: true

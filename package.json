@@ -1,0 +1,13 @@
+{
+  "name": "mesugaki-opening-visual",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Codex skill for Kurose Runa local visual openers and queued voice playback.",
+  "scripts": {
+    "check": "pnpm run validate && pnpm test",
+    "install:link": "node scripts/install-link.mjs",
+    "test": "node --test scripts/*.test.mjs",
+    "validate": "node scripts/validate-repo.mjs"
+  }
+}
