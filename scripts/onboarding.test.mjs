@@ -80,8 +80,11 @@ test('non-interactive setup writes mode-600 configs and doctor accepts the resul
       },
       home: root,
     });
-    assert.equal(doctor.ok, true);
-    assert.equal(doctor.summary.fail, 0);
+    const expectedPlatformFailures = process.platform === 'darwin' ? 0 : 1;
+    assert.equal(doctor.ok, expectedPlatformFailures === 0);
+    assert.equal(doctor.summary.fail, expectedPlatformFailures);
+    assert.equal(doctor.checks.find((check) => check.name === 'platform').status,
+      process.platform === 'darwin' ? 'pass' : 'fail');
     assert.equal(doctor.checks.find((check) => check.name === 'credential').detail,
       'env:FISH_AUDIO_API_KEY');
   } finally {
