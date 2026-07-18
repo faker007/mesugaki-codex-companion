@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "failures": [],
+  "warnings": [
+    "jumping loops from an upright landing directly back to the deep anticipation crouch, causing a noticeable but semantically acceptable pose reset.",
+    "running and review remain visually distinct but still share some thinking-hand gesture language at pet size."
+  ],
+  "summary": "Stable-slots extraction fixed the jumping and failed size pops. All 9 rows retain correct frame counts, stable identity and bow continuity, unclipped silhouettes, steady baselines, correct directional cadence, and no new visual regressions."
+}

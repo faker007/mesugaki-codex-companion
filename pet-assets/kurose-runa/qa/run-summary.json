@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "spritesheet": "spritesheet.webp",
+  "validation": "qa/validation.json",
+  "contact_sheet": "qa/contact-sheet.png",
+  "frame_review": "qa/frame-review.json",
+  "visual_review": "qa/visual-review.json",
+  "previews": "qa/previews"
+}

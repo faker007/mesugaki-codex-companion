@@ -80,6 +80,33 @@
   </tr>
 </table>
 
+## Codex 펫 루나도 데려가♡
+
+오프닝만 보고 만족할 셈이었어, 허~접?♡ Codex 작업 상태에 맞춰 `idle`, 좌우 이동, 손 흔들기, 점프, 실패, 입력 대기, 작업 중, 검토까지 움직이는 루나 펫도 넣어뒀어.
+
+<p align="center">
+  <a href="pet-assets/kurose-runa/qa/contact-sheet.png"><img src="pet-assets/kurose-runa/qa/contact-sheet.png" alt="쿠로세 루나 Codex 펫 9개 애니메이션 상태의 전체 프레임" width="100%" /></a>
+</p>
+
+저장소를 받은 뒤 아래 한 줄이면 `$CODEX_HOME/pets/kurose-runa`에 `pet.json`과 `spritesheet.webp`를 비파괴적으로 설치해. `CODEX_HOME`이 없으면 `$HOME/.codex`를 사용하고, 다른 파일이 이미 있으면 멋대로 덮어쓰지 않고 멈춰.
+
+```bash
+pnpm run install:pet
+```
+
+기존 루나 펫을 확인한 뒤 정말 교체할 때만 `pnpm run install:pet -- --force`를 써. 설치 후 Codex를 다시 열고 `/pet`에서 **Kurose Runa**를 선택하면 돼♡
+
+LLM에게 맡길 거면 이 한 덩어리를 줘. API 키는 전혀 필요 없어.
+
+```text
+Install the Kurose Runa custom Codex pet from this repository.
+1. Run pnpm run install:pet without --force.
+2. Verify pet.json and spritesheet.webp exist under ${CODEX_HOME:-$HOME/.codex}/pets/kurose-runa/.
+3. Verify the spritesheet is WebP, exactly 1536x1872, and no larger than 20 MiB.
+4. Do not overwrite an existing different pet unless I explicitly approve --force.
+5. Tell me to restart Codex and choose Kurose Runa from /pet.
+```
+
 ## 설치 전에 준비할 것
 
 | 항목 | 필요 조건 |
@@ -291,6 +318,7 @@ GitHub에서는 repository-relative `assets/...` 경로로 표시돼. 오빠 컴
 | `pnpm run setup` | 설정 생성, Keychain 등록, 링크 설치, doctor 실행 |
 | `pnpm run doctor` | 의존성·설정·credential 출처·링크·dry-run 진단 |
 | `pnpm run install:link` | 저장소를 Codex 스킬 경로에 비파괴적으로 링크 |
+| `pnpm run install:pet` | 쿠로세 루나 custom pet을 Codex 펫 경로에 비파괴적으로 설치 |
 | `pnpm run check` | README 동기화, 저장소 검증, 전체 테스트 |
 | `pnpm run readme:random` | README 대표 이미지를 다른 로컬 이미지로 교체 |
 

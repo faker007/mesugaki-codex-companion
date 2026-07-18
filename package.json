@@ -20,6 +20,7 @@
     "check": "pnpm run validate && pnpm run readme:check && pnpm test",
     "doctor": "node scripts/doctor.mjs",
     "install:link": "node scripts/install-link.mjs",
+    "install:pet": "node scripts/install-pet.mjs",
     "readme": "node scripts/generate-readme.mjs",
     "readme:check": "node scripts/generate-readme.mjs --check",
     "readme:random": "node scripts/generate-readme.mjs --random",
