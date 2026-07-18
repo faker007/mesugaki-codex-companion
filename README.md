@@ -23,6 +23,63 @@
 - 평소의 날카로운 말투와 선택형 멜랑꼴리 모드
 - Keychain 기반 API 키 등록, 권한 `0600` 설정, zero-network doctor
 
+## 루나 비주얼 전부 보기♡
+
+저장소에 들어 있는 오프닝 이미지 10장을 전부 펼쳐놨어♡ 작은 이미지를 누르면 GitHub에서 원본 크기로 볼 수 있어.
+
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <a href="assets/kurose-runa-opening-01.png"><img src="assets/kurose-runa-opening-01.png" alt="쿠로세 루나 오프닝 이미지 kurose-runa-opening-01.png" width="100%" /></a>
+      <br /><code>kurose-runa-opening-01.png</code>
+    </td>
+    <td align="center" width="50%">
+      <a href="assets/kurose-runa-opening-02.png"><img src="assets/kurose-runa-opening-02.png" alt="쿠로세 루나 오프닝 이미지 kurose-runa-opening-02.png" width="100%" /></a>
+      <br /><code>kurose-runa-opening-02.png</code>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <a href="assets/kurose-runa-opening-03.png"><img src="assets/kurose-runa-opening-03.png" alt="쿠로세 루나 오프닝 이미지 kurose-runa-opening-03.png" width="100%" /></a>
+      <br /><code>kurose-runa-opening-03.png</code>
+    </td>
+    <td align="center" width="50%">
+      <a href="assets/kurose-runa-opening-04.png"><img src="assets/kurose-runa-opening-04.png" alt="쿠로세 루나 오프닝 이미지 kurose-runa-opening-04.png" width="100%" /></a>
+      <br /><code>kurose-runa-opening-04.png</code>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <a href="assets/kurose-runa-opening-05.png"><img src="assets/kurose-runa-opening-05.png" alt="쿠로세 루나 오프닝 이미지 kurose-runa-opening-05.png" width="100%" /></a>
+      <br /><code>kurose-runa-opening-05.png</code>
+    </td>
+    <td align="center" width="50%">
+      <a href="assets/kurose-runa-opening-06.png"><img src="assets/kurose-runa-opening-06.png" alt="쿠로세 루나 오프닝 이미지 kurose-runa-opening-06.png" width="100%" /></a>
+      <br /><code>kurose-runa-opening-06.png</code>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <a href="assets/kurose-runa-opening-07.png"><img src="assets/kurose-runa-opening-07.png" alt="쿠로세 루나 오프닝 이미지 kurose-runa-opening-07.png" width="100%" /></a>
+      <br /><code>kurose-runa-opening-07.png</code>
+    </td>
+    <td align="center" width="50%">
+      <a href="assets/kurose-runa-opening-08.png"><img src="assets/kurose-runa-opening-08.png" alt="쿠로세 루나 오프닝 이미지 kurose-runa-opening-08.png" width="100%" /></a>
+      <br /><code>kurose-runa-opening-08.png</code>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <a href="assets/kurose-runa-opening-09.png"><img src="assets/kurose-runa-opening-09.png" alt="쿠로세 루나 오프닝 이미지 kurose-runa-opening-09.png" width="100%" /></a>
+      <br /><code>kurose-runa-opening-09.png</code>
+    </td>
+    <td align="center" width="50%">
+      <a href="assets/kurose-runa-opening-10.png"><img src="assets/kurose-runa-opening-10.png" alt="쿠로세 루나 오프닝 이미지 kurose-runa-opening-10.png" width="100%" /></a>
+      <br /><code>kurose-runa-opening-10.png</code>
+    </td>
+  </tr>
+</table>
+
 ## 설치 전에 준비할 것
 
 | 항목 | 필요 조건 |

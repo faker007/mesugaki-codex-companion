@@ -48,9 +48,46 @@ export function currentHero(readme) {
   return readme.match(/<!-- hero-image: ([^\n]+) -->/)?.[1] ?? null;
 }
 
-export function renderReadme(template, heroImage) {
+function escapeHtml(value) {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+export function renderGallery(assets, columns = 2) {
+  if (!Number.isInteger(columns) || columns < 1) throw new Error('gallery columns must be a positive integer');
+  if (!assets.length) throw new Error('README gallery requires at least one image');
+  const cellWidth = `${Math.floor(100 / columns)}%`;
+  const rows = [];
+  for (let index = 0; index < assets.length; index += columns) {
+    const cells = assets.slice(index, index + columns).map((asset) => {
+      const safeAsset = escapeHtml(asset);
+      const fileName = asset.split('/').at(-1);
+      const safeName = escapeHtml(fileName);
+      return [
+        `    <td align="center" width="${cellWidth}">`,
+        `      <a href="${safeAsset}"><img src="${safeAsset}" alt="쿠로세 루나 오프닝 이미지 ${safeName}" width="100%" /></a>`,
+        `      <br /><code>${safeName}</code>`,
+        '    </td>',
+      ].join('\n');
+    });
+    while (cells.length < columns) cells.push('    <td></td>');
+    rows.push(['  <tr>', ...cells, '  </tr>'].join('\n'));
+  }
+  return ['<table>', ...rows, '</table>'].join('\n');
+}
+
+export function renderReadme(template, heroImage, assets) {
   if (!template.includes('{{HERO_IMAGE}}')) throw new Error('README template lacks HERO_IMAGE');
-  return template.replaceAll('{{HERO_IMAGE}}', heroImage);
+  if (!template.includes('{{IMAGE_GALLERY}}')) throw new Error('README template lacks IMAGE_GALLERY');
+  if (!template.includes('{{ASSET_COUNT}}')) throw new Error('README template lacks ASSET_COUNT');
+  return template
+    .replaceAll('{{HERO_IMAGE}}', heroImage)
+    .replaceAll('{{IMAGE_GALLERY}}', renderGallery(assets))
+    .replaceAll('{{ASSET_COUNT}}', String(assets.length));
 }
 
 export function selectHero({ assets, current, requested, random }) {
@@ -81,7 +118,7 @@ export async function generateReadme(argv = process.argv.slice(2)) {
     requested: options.image,
     random: options.random,
   });
-  const rendered = renderReadme(template, heroImage);
+  const rendered = renderReadme(template, heroImage, assets);
   if (options.check) {
     if (existing !== rendered) throw new Error('README.md is stale; run pnpm run readme');
     return { ok: true, mode: 'check', heroImage, assetCount: assets.length };
