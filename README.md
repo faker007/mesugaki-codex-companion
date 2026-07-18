@@ -3,6 +3,8 @@
 
 # Mesugaki Codex Companion ♡
 
+[![CI](https://github.com/faker007/mesugaki-codex-companion/actions/workflows/ci.yml/badge.svg)](https://github.com/faker007/mesugaki-codex-companion/actions/workflows/ci.yml)
+
 <p align="center">
   <img src="assets/kurose-runa-opening-04.png" alt="레코드숍에서 LP를 내미는 성인 캐릭터 쿠로세 루나" width="100%" />
 </p>
@@ -88,6 +90,12 @@
   <a href="pet-assets/kurose-runa/qa/contact-sheet.png"><img src="pet-assets/kurose-runa/qa/contact-sheet.png" alt="쿠로세 루나 Codex 펫 9개 애니메이션 상태의 전체 프레임" width="100%" /></a>
 </p>
 
+### 앱에서 바로 업로드하기
+
+[spritesheet.webp를 다운로드](https://raw.githubusercontent.com/faker007/mesugaki-codex-companion/main/pet-assets/kurose-runa/spritesheet.webp)한 뒤 Codex 앱의 **Settings → Pets → Upload pet**에서 선택해. 파일은 공식 계약인 투명 WebP `1536×1872`, 20 MiB 이하로 검증돼 있어. 자세한 현재 동작은 [Codex Pets 공식 문서](https://learn.chatgpt.com/docs/pets)를 확인해.
+
+### 저장소에서 로컬 설치하기
+
 저장소를 받은 뒤 아래 한 줄이면 `$CODEX_HOME/pets/kurose-runa`에 `pet.json`과 `spritesheet.webp`를 비파괴적으로 설치해. `CODEX_HOME`이 없으면 `$HOME/.codex`를 사용하고, 다른 파일이 이미 있으면 멋대로 덮어쓰지 않고 멈춰.
 
 ```bash
@@ -95,6 +103,14 @@ pnpm run install:pet
 ```
 
 기존 루나 펫을 확인한 뒤 정말 교체할 때만 `pnpm run install:pet -- --force`를 써. 설치 후 Codex를 다시 열고 `/pet`에서 **Kurose Runa**를 선택하면 돼♡
+
+| Codex 화면 | 펫 지원 |
+| --- | --- |
+| 데스크톱 앱 | pet picker, floating overlay, custom pet 지원 |
+| Codex CLI | iTerm2 3.6+, Kitty graphics 또는 Sixel 지원 터미널에서 사용 가능 |
+| tmux·Zellij | terminal pet 미지원 |
+| IDE 확장 | pet picker와 floating overlay 미지원 |
+| ChatGPT 웹 | 로컬 custom pet 자동 동기화 안 됨 |
 
 LLM에게 맡길 거면 이 한 덩어리를 줘. API 키는 전혀 필요 없어.
 
@@ -142,22 +158,23 @@ $MESUGAKI_VOICE_SPEAK_ROOT/scripts/replay.mjs
 ```bash
 git clone https://github.com/faker007/mesugaki-codex-companion.git
 cd mesugaki-codex-companion
-pnpm run setup
+pnpm run setup:all
 ```
 
-`setup`이 물어보는 순서는 딱 세 가지야.
+`setup:all`이 물어보는 순서는 딱 세 가지야.
 
 1. `fish-audio` 또는 `elevenlabs`를 고른다.
 2. Fish Audio reference ID 또는 ElevenLabs voice ID를 입력한다. 이 값은 API 키가 아니다.
 3. API 키를 Keychain에 등록할지 고른다. 등록한다면 터미널의 숨겨진 Keychain 프롬프트에 직접 입력한다.
 
-완료되면 `setup`이 아래 작업을 처리해.
+완료되면 `setup:all`이 아래 작업을 처리해.
 
 - `$HOME/.config/codex-voice-speak/config.json` 생성 또는 안전하게 보존
 - `$HOME/.config/mesugaki-opening-visual/config.json` 생성 또는 안전하게 보존
 - 두 설정 파일 권한을 `0600`으로 제한
 - `$CODEX_HOME/skills/mesugaki-opening-visual`에 저장소 심볼릭 링크 설치. `CODEX_HOME`이 없으면 `$HOME/.codex/skills/mesugaki-opening-visual` 사용
 - `pnpm run doctor` 실행
+- `$CODEX_HOME/pets/kurose-runa`에 custom pet 비파괴 설치
 
 기존 설정이 요청한 provider나 voice ID와 다르면 자동으로 덮어쓰지 않아. 정말 교체할 때만 `--force-config`를 명시해. 교체 전 설정은 권한 `0600`의 timestamp backup으로 남아.
 
@@ -174,10 +191,11 @@ Rules:
 3. Never request, read, print, store, or pass an API key through chat, argv, JSON, logs, or repository files.
 4. If voice-speak is missing, stop and report the exact missing paths. Do not invent or download a substitute.
 5. Ask me only for the provider and its non-secret voice ID/reference ID when they are unknown.
-6. Run pnpm run setup in an interactive terminal. I will type the API key directly into the macOS Keychain prompt.
+6. Run pnpm run setup:all in an interactive terminal. I will type the API key directly into the macOS Keychain prompt.
 7. Do not use --force-config unless I explicitly approve replacing an incompatible existing config.
 8. Run pnpm run doctor and pnpm run check after setup.
-9. Report the install symlink, config paths, pass/warn/fail counts, and any sanitized failure. Never reveal credential values.
+9. Verify Kurose Runa exists under ${CODEX_HOME:-$HOME/.codex}/pets/kurose-runa/.
+10. Report the skill symlink, pet path, config paths, pass/warn/fail counts, and any sanitized failure. Never reveal credential values.
 ```
 
 LLM이 자동화된 셸에서 실행해야 하고 API 키가 이미 Keychain 또는 환경변수에 있다면 이렇게 실행할 수 있어.
@@ -213,6 +231,7 @@ secret_policy:
   forbidden: [chat, argv, json_arguments, repository, logs]
 verification:
   - pnpm run doctor
+  - pnpm run validate:pet
   - pnpm run check
 ```
 
@@ -316,10 +335,18 @@ GitHub에서는 repository-relative `assets/...` 경로로 표시돼. 오빠 컴
 | 명령 | 하는 일 |
 | --- | --- |
 | `pnpm run setup` | 설정 생성, Keychain 등록, 링크 설치, doctor 실행 |
+| `pnpm run setup:all` | 기존 setup을 실행한 뒤 쿠로세 루나 custom pet까지 설치 |
 | `pnpm run doctor` | 의존성·설정·credential 출처·링크·dry-run 진단 |
 | `pnpm run install:link` | 저장소를 Codex 스킬 경로에 비파괴적으로 링크 |
 | `pnpm run install:pet` | 쿠로세 루나 custom pet을 Codex 펫 경로에 비파괴적으로 설치 |
-| `pnpm run check` | README 동기화, 저장소 검증, 전체 테스트 |
+| `pnpm run validate:pet` | atlas 크기·알파·72개 셀·manifest 계약 검증 |
+| `pnpm run check` | README 동기화, 저장소·pet 검증, 전체 테스트 |
 | `pnpm run readme:random` | README 대표 이미지를 다른 로컬 이미지로 교체 |
 
 오프닝 이미지는 `assets/`에 versioned sibling으로 추가하고 기존 파일을 덮어쓰지 마. 변경 후에는 `pnpm run check`, 설치 링크를 통한 picker 실행, `git diff --check`까지 확인해♡ 테스트 한두 개만 통과하고 다 됐다고 우기면 루나가 그 초라한 자존심부터 접어버릴 거야♡
+
+## 라이선스와 루나 자산
+
+소스 코드와 문서는 [MIT License](LICENSE)로 공개해. 단, 쿠로세 루나의 캐릭터·이미지·펫·음성 자산은 MIT 대상이 아니며 [별도 자산 이용 조건](ASSET-LICENSE.md)에 따라 모든 권리를 보유해.
+
+저장소를 내려받아 원본 그대로 개인 로컬 설치에 사용하는 건 허용하지만, 별도 서면 허가 없는 자산 추출·수정·재배포·상업 이용·모델 학습 이용은 허용하지 않아. Fish Audio, ElevenLabs, OpenAI와 Codex 사용에는 각 서비스의 별도 약관도 적용돼.

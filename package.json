@@ -2,6 +2,7 @@
   "name": "mesugaki-opening-visual",
   "version": "0.2.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "packageManager": "pnpm@10.27.0",
   "engines": {
@@ -17,7 +18,7 @@
     "url": "https://github.com/faker007/mesugaki-codex-companion/issues"
   },
   "scripts": {
-    "check": "pnpm run validate && pnpm run readme:check && pnpm test",
+    "check": "pnpm run validate && pnpm run validate:pet && pnpm run readme:check && pnpm test",
     "doctor": "node scripts/doctor.mjs",
     "install:link": "node scripts/install-link.mjs",
     "install:pet": "node scripts/install-pet.mjs",
@@ -25,7 +26,12 @@
     "readme:check": "node scripts/generate-readme.mjs --check",
     "readme:random": "node scripts/generate-readme.mjs --random",
     "setup": "node scripts/setup.mjs",
+    "setup:all": "node scripts/setup.mjs --install-pet",
     "test": "node --test scripts/*.test.mjs",
-    "validate": "node scripts/validate-repo.mjs"
+    "validate": "node scripts/validate-repo.mjs",
+    "validate:pet": "node scripts/validate-pet.mjs"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.5"
   }
 }

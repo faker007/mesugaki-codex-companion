@@ -7,14 +7,23 @@ import { fileURLToPath } from 'node:url';
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const requiredFiles = [
   'SKILL.md',
+  '.github/workflows/ci.yml',
+  'ASSET-LICENSE.md',
+  'CONTRIBUTING.md',
+  'LICENSE',
   'README.md',
+  'SECURITY.md',
   'agents/openai.yaml',
   'package.json',
+  'pet-assets/kurose-runa/pet.json',
+  'pet-assets/kurose-runa/spritesheet.webp',
+  'scripts/install-pet.mjs',
+  'scripts/validate-pet.mjs',
   'templates/README.md.tmpl',
   'templates/codex-voice-speak.config.json',
   'templates/mesugaki-opening-visual.config.json',
 ];
-const textExtensions = new Set(['.json', '.md', '.mjs', '.tmpl', '.yaml', '.yml']);
+const textExtensions = new Set(['', '.json', '.md', '.mjs', '.tmpl', '.yaml', '.yml']);
 const supportedImages = new Set(['.png', '.jpg', '.jpeg', '.webp', '.avif']);
 const failures = [];
 let textFileCount = 0;

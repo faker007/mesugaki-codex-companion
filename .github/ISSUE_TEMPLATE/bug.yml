@@ -1,0 +1,61 @@
+name: Bug report
+description: Report a reproducible skill, voice, installer, or pet problem.
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: Never paste API keys, credentials, private audio, or personal data.
+  - type: input
+    id: codex_surface
+    attributes:
+      label: Codex surface and version
+      placeholder: Desktop app, CLI, or IDE extension; include version
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: macOS version, terminal and version when relevant
+    validations:
+      required: true
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Voice provider
+      options:
+        - Fish Audio
+        - ElevenLabs
+        - Not related to voice
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior and sanitized output
+      description: Remove credential values and personal paths before submitting.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Safety checks
+      options:
+        - label: I removed API keys, credentials, personal data, and private audio.
+          required: true
+        - label: I ran pnpm run check when reporting a repository change.
+          required: false

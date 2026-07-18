@@ -25,6 +25,7 @@ const VALUE_OPTIONS = new Set([
   'config-root',
   'voice-speak-root',
   'install-dir',
+  'pet-install-dir',
 ]);
 const FLAG_OPTIONS = new Set([
   'force-config',
@@ -32,6 +33,8 @@ const FLAG_OPTIONS = new Set([
   'skip-keychain',
   'skip-link',
   'skip-doctor',
+  'install-pet',
+  'force-pet',
   'no-input',
   'json',
   'help',
@@ -211,6 +214,7 @@ export async function runSetup(argv = process.argv.slice(2), overrides = {}) {
   if (options['config-root']) env.MESUGAKI_CONFIG_ROOT = options['config-root'];
   if (options['voice-speak-root']) env.MESUGAKI_VOICE_SPEAK_ROOT = options['voice-speak-root'];
   if (options['install-dir']) env.MESUGAKI_INSTALL_DIR = options['install-dir'];
+  if (options['pet-install-dir']) env.MESUGAKI_PET_INSTALL_DIR = options['pet-install-dir'];
   const paths = resolveOnboardingPaths({ env, home: overrides.home });
   await assertVoiceSpeak(paths.voiceSpeakRoot);
 
@@ -274,6 +278,13 @@ export async function runSetup(argv = process.argv.slice(2), overrides = {}) {
   const doctor = options['skip-doctor']
     ? { ok: true, state: 'skipped' }
     : await runJsonScript(resolve(repositoryRoot, 'scripts/doctor.mjs'), ['--json'], childEnv);
+  const pet = options['install-pet']
+    ? await runJsonScript(
+      resolve(repositoryRoot, 'scripts/install-pet.mjs'),
+      options['force-pet'] ? ['--force'] : [],
+      childEnv,
+    )
+    : { ok: true, state: 'skipped' };
 
   return {
     ok: true,
@@ -283,6 +294,7 @@ export async function runSetup(argv = process.argv.slice(2), overrides = {}) {
     keychain,
     link,
     doctor,
+    pet,
   };
 }
 
@@ -291,6 +303,7 @@ function helpText() {
     `Interactive: pnpm run setup\n` +
     `Scripted: node scripts/setup.mjs --provider=fish-audio --voice-id=<reference-id>\n\n` +
     `Flags: --force-config --replace-key --skip-keychain --skip-link --skip-doctor\n` +
+    `       --install-pet --force-pet --pet-install-dir=<path>\n` +
     `       --config-root=<path> --voice-speak-root=<path> --install-dir=<path>\n` +
     `       --no-input --json --help\n`;
 }

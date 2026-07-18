@@ -145,3 +145,35 @@ test('setup accepts a configured environment credential without a Keychain promp
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('setup can install the custom pet without changing the credential boundary', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'mesugaki-onboarding-pet-'));
+  const voiceRoot = join(root, 'voice-speak');
+  const petInstallDir = join(root, 'codex/pets/kurose-runa');
+  try {
+    await mkdir(join(voiceRoot, 'scripts'), { recursive: true });
+    for (const script of ['speak.mjs', 'speak-response.mjs', 'replay.mjs']) {
+      await writeFile(join(voiceRoot, 'scripts', script), '#!/usr/bin/env node\n');
+    }
+    const result = await runSetup([
+      '--provider=fish-audio',
+      '--voice-id=fish-reference',
+      `--config-root=${join(root, 'config')}`,
+      `--voice-speak-root=${voiceRoot}`,
+      `--pet-install-dir=${petInstallDir}`,
+      '--skip-keychain',
+      '--skip-link',
+      '--skip-doctor',
+      '--install-pet',
+      '--no-input',
+    ], { home: root });
+    assert.equal(result.pet.ok, true);
+    assert.equal(result.pet.targetDir, petInstallDir);
+    assert.deepEqual(
+      JSON.parse(await readFile(join(petInstallDir, 'pet.json'), 'utf8')),
+      JSON.parse(await readFile(join(repositoryRoot, 'pet-assets/kurose-runa/pet.json'), 'utf8')),
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
