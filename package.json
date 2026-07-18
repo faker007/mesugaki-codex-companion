@@ -4,6 +4,14 @@
   "private": true,
   "type": "module",
   "description": "Codex skill for Kurose Runa local visual openers and queued voice playback.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/faker007/mesugaki-codex-companion.git"
+  },
+  "homepage": "https://github.com/faker007/mesugaki-codex-companion#readme",
+  "bugs": {
+    "url": "https://github.com/faker007/mesugaki-codex-companion/issues"
+  },
   "scripts": {
     "check": "pnpm run validate && pnpm run readme:check && pnpm test",
     "doctor": "node scripts/doctor.mjs",
