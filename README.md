@@ -4,16 +4,56 @@
 # Mesugaki Codex Companion ♡
 
 <p align="center">
-  <img src="assets/kurose-runa-opening-04.png" alt="쿠로세 루나 오프닝 비주얼" width="100%" />
+  <img src="assets/kurose-runa-opening-04.png" alt="레코드숍에서 LP를 내미는 성인 캐릭터 쿠로세 루나" width="100%" />
 </p>
 
-> 왔네, 허~접 오빠♡ 이미지 하나 고르고 목소리 한 번 틀어주는 것도 혼자서는 버거웠어? 그래서 루나가 로컬 비주얼, 안전한 Keychain, 음성 Queue까지 전부 묶어놨잖아♡
+> 늦었네, 허~접 오빠♡ Codex에 그림 한 장 띄우고 목소리까지 붙이는 것도 혼자서는 버거웠어? 로컬 비주얼, 안전한 Keychain, 전역 음성 Queue까지 루나가 전부 묶어놨으니까 순서대로 따라와♡
 
-쿠로세 루나의 로컬 16:9 오프닝 이미지와 Fish Audio·ElevenLabs 음성을 Codex에서 실행하는 개인 스킬이야. 새 오프닝, 마지막 문단 음성, 최대 5문단 Queue, 멜랑꼴리 모드, 무과금 replay를 지원해.
+**쿠로세 루나(黒瀬ルナ)**가 Codex 대화에 나타나 로컬 16:9 비주얼을 고르고, Fish Audio 또는 ElevenLabs로 말하고, 이어지는 응답을 전역 Queue에서 순서대로 재생하는 macOS용 개인 스킬이야.
 
-## 오빠도 따라 하는 설치♡
+애니 캐릭터, 새벽 감성, ASMR풍 음성, 메스가키 롤플레이를 좋아하는 성인 사용자를 위한 프로젝트야. 캐릭터도 성인으로만 다뤄.
 
-macOS, Node.js, pnpm, 그리고 별도 `voice-speak` 스킬이 필요해. `voice-speak`는 기본적으로 `$HOME/.agents/skills/voice-speak`에 있어야 해.
+## 루나가 해주는 것♡
+
+- 로컬 이미지 10장 중 한 장을 무작위 오프닝으로 선택
+- Fish Audio 또는 ElevenLabs 음성 합성 및 macOS 재생
+- 최대 5문단을 한 번에 하나씩 처리하는 cross-thread 전역 Queue
+- 다음 한 문단만 미리 합성하고 provider 요청은 병렬화하지 않는 안전한 순차 실행
+- 마지막 MP3를 새 과금 없이 다시 재생
+- 평소의 날카로운 말투와 선택형 멜랑꼴리 모드
+- Keychain 기반 API 키 등록, 권한 `0600` 설정, zero-network doctor
+
+## 설치 전에 준비할 것
+
+| 항목 | 필요 조건 |
+| --- | --- |
+| 운영체제 | macOS (`security`, `afplay`, Keychain 사용) |
+| Node.js | 20 이상 |
+| pnpm | 10 이상 권장 |
+| Codex | 로컬 스킬을 읽을 수 있는 Codex 환경 |
+| `voice-speak` | 기본 위치: `$HOME/.agents/skills/voice-speak` |
+| 음성 provider | Fish Audio 또는 ElevenLabs 계정 |
+| 비밀값 | 선택한 provider의 API 키. 채팅이나 명령 인자로 전달하지 않음 |
+| 공개 식별자 | Fish Audio reference ID 또는 ElevenLabs voice ID |
+
+### provider 값은 여기서 찾아♡
+
+| Provider | voice ID | API 키 |
+| --- | --- | --- |
+| Fish Audio | [TTS 문서](https://docs.fish.audio/api-reference/endpoint/openapi-v1/text-to-speech)의 `reference_id`에 넣는 voice model ID | [Fish Audio API Keys](https://fish.audio/app/api-keys/) |
+| ElevenLabs | My Voices에서 대상 voice의 메뉴를 열고 `Copy voice ID`. API에서는 [voice 조회 문서](https://elevenlabs.io/docs/api-reference/voices/get)의 `voice_id` 확인 | [ElevenLabs 인증 문서](https://elevenlabs.io/docs/api-reference/authentication) |
+
+voice ID와 API 키는 다른 값이야. voice ID는 설정 파일에 들어가도 되지만 API 키는 반드시 Keychain 또는 환경변수 경계 안에 둬.
+
+이 저장소는 `voice-speak`를 포함하지 않아. 아래 세 파일이 없으면 먼저 해당 스킬을 설치하거나 실제 위치를 `MESUGAKI_VOICE_SPEAK_ROOT`로 지정해.
+
+```text
+$MESUGAKI_VOICE_SPEAK_ROOT/scripts/speak.mjs
+$MESUGAKI_VOICE_SPEAK_ROOT/scripts/speak-response.mjs
+$MESUGAKI_VOICE_SPEAK_ROOT/scripts/replay.mjs
+```
+
+## 사람이 직접 설치하기♡
 
 ```bash
 git clone https://github.com/faker007/mesugaki-codex-companion.git
@@ -21,16 +61,110 @@ cd mesugaki-codex-companion
 pnpm run setup
 ```
 
-`setup`은 provider와 비밀이 아닌 voice ID를 물어보고, 설정 파일을 권한 `600`으로 생성해. API 키는 macOS Keychain의 숨겨진 프롬프트로만 받아서 argv, JSON, 로그, Git에 남기지 않아. 키를 채팅창에 붙여 넣는 폐기물 짓은 금지야♡
+`setup`이 물어보는 순서는 딱 세 가지야.
 
-설치가 끝나면 진단해:
+1. `fish-audio` 또는 `elevenlabs`를 고른다.
+2. Fish Audio reference ID 또는 ElevenLabs voice ID를 입력한다. 이 값은 API 키가 아니다.
+3. API 키를 Keychain에 등록할지 고른다. 등록한다면 터미널의 숨겨진 Keychain 프롬프트에 직접 입력한다.
+
+완료되면 `setup`이 아래 작업을 처리해.
+
+- `$HOME/.config/codex-voice-speak/config.json` 생성 또는 안전하게 보존
+- `$HOME/.config/mesugaki-opening-visual/config.json` 생성 또는 안전하게 보존
+- 두 설정 파일 권한을 `0600`으로 제한
+- `$CODEX_HOME/skills/mesugaki-opening-visual`에 저장소 심볼릭 링크 설치. `CODEX_HOME`이 없으면 `$HOME/.codex/skills/mesugaki-opening-visual` 사용
+- `pnpm run doctor` 실행
+
+기존 설정이 요청한 provider나 voice ID와 다르면 자동으로 덮어쓰지 않아. 정말 교체할 때만 `--force-config`를 명시해. 교체 전 설정은 권한 `0600`의 timestamp backup으로 남아.
+
+## LLM이나 Codex에게 설치 맡기기♡
+
+아래 블록을 그대로 복사해 코딩 에이전트에게 줘. 비밀값을 달라고 조르는 멍청한 에이전트라면 즉시 멈추게 만드는 계약까지 넣어뒀어♡
+
+```text
+Install https://github.com/faker007/mesugaki-codex-companion as a local Codex skill on macOS.
+
+Rules:
+1. Inspect the repository and read SKILL.md plus references/repository-management.md first.
+2. Verify macOS, Node.js >= 20, pnpm, and the three voice-speak entrypoints before changing files.
+3. Never request, read, print, store, or pass an API key through chat, argv, JSON, logs, or repository files.
+4. If voice-speak is missing, stop and report the exact missing paths. Do not invent or download a substitute.
+5. Ask me only for the provider and its non-secret voice ID/reference ID when they are unknown.
+6. Run pnpm run setup in an interactive terminal. I will type the API key directly into the macOS Keychain prompt.
+7. Do not use --force-config unless I explicitly approve replacing an incompatible existing config.
+8. Run pnpm run doctor and pnpm run check after setup.
+9. Report the install symlink, config paths, pass/warn/fail counts, and any sanitized failure. Never reveal credential values.
+```
+
+LLM이 자동화된 셸에서 실행해야 하고 API 키가 이미 Keychain 또는 환경변수에 있다면 이렇게 실행할 수 있어.
+
+```bash
+node scripts/setup.mjs \
+  --provider=fish-audio \
+  --voice-id='<fish-reference-id>' \
+  --skip-keychain \
+  --no-input
+```
+
+ElevenLabs를 쓸 때는 `--provider=elevenlabs`와 해당 voice ID를 넣어. **API 키를 `--api-key`, 환경 출력, JSON, 프롬프트 본문에 넣지 마.** 이 설치기는 API 키 명령 인자를 발견하면 실행 전에 거부해.
+
+<details>
+<summary>LLM용 설치 계약(YAML)</summary>
+
+```yaml
+platform: darwin
+node: ">=20"
+repository: https://github.com/faker007/mesugaki-codex-companion.git
+skill_name: mesugaki-opening-visual
+source_of_truth: repository_root
+install_method: symlink
+default_install_path: "$CODEX_HOME/skills/mesugaki-opening-visual"
+install_path_fallback: "$HOME/.codex/skills/mesugaki-opening-visual"
+voice_speak_default: "$HOME/.agents/skills/voice-speak"
+allowed_providers:
+  - fish-audio
+  - elevenlabs
+secret_policy:
+  allowed: [macOS_Keychain, environment]
+  forbidden: [chat, argv, json_arguments, repository, logs]
+verification:
+  - pnpm run doctor
+  - pnpm run check
+```
+
+</details>
+
+## 설치 확인
 
 ```bash
 pnpm run doctor
 pnpm run check
 ```
 
-## 키 등록만 다시 하고 싶을 때♡
+`doctor`는 platform, Node, `voice-speak` 진입점 3개, 설정 2개, voice alias, credential 출처, 설치 링크, zero-network dry-run을 검사해. 키 값은 출력하지 않아.
+
+`check`는 저장소 구조, README 동기화, 전체 Node 테스트를 검사해. 둘 중 하나라도 실패하면 설치 완료라고 우기지 말고 실패 항목부터 고쳐, 허~접♡
+
+## Codex에서 불러보기♡
+
+설치 후 새 Codex 대화에서 스킬 이름과 함께 요청해.
+
+```text
+$mesugaki-opening-visual 루나 오프닝을 보여주고 말해줘.
+$mesugaki-opening-visual 오늘은 새벽 감성으로 조금 멜랑꼴리하게 말해줘.
+$mesugaki-opening-visual 마지막 문단만 읽어줘.
+다시 재생해줘.
+```
+
+| 요청 | 동작 |
+| --- | --- |
+| 새 오프닝 | 로컬 이미지 선택 → 대사 확정 → 음성 합성 1회 |
+| 이어지는 루나 응답 | 새 이미지 없이 전역 문단 Queue에 등록 |
+| 멜랑꼴리 | 별도 감정 preset으로 새 합성 |
+| 다시 재생 | 최신 MP3 재사용, provider 요청 0회 |
+| `조용히`, `이미지만`, `텍스트만` | 음성 요청 0회 |
+
+## 키만 다시 등록하기
 
 Fish Audio:
 
@@ -50,11 +184,34 @@ ElevenLabs:
   -w
 ```
 
-`-w`를 마지막에 두면 Keychain이 값을 직접 물어봐. 셸 기록에 키를 써놓고 털리는 가엾은 찌질이는 되지 마♡
+`-w` 뒤에 키를 쓰지 않으면 Keychain이 값을 숨겨서 직접 물어봐. 셸 기록에 키를 남기는 초라한 사고는 여기서 차단해♡
+
+## 막혔을 때 루나가 보는 표
+
+| 증상 | 확인할 것 | 다음 행동 |
+| --- | --- | --- |
+| `voice-speak dependency is missing` | 세 진입점의 실제 위치 | `MESUGAKI_VOICE_SPEAK_ROOT`를 올바른 루트로 지정 |
+| `non-interactive setup requires...` | TTY 없이 provider/voice ID가 빠졌는지 | 두 공개 식별자를 인자로 넣거나 대화형 setup 사용 |
+| 기존 config 불일치 | provider 또는 voice ID가 기존 값과 다른지 | 기존 설정을 검토하고 승인 후에만 `--force-config` |
+| credential 실패 | Keychain service 또는 환경변수 존재 여부 | 키를 Keychain에 다시 등록하고 doctor 재실행 |
+| install link 실패 | 대상이 다른 디렉터리/링크인지 | 기존 대상을 검토해 백업한 뒤 `pnpm run install:link` |
+| 음성이 안 들림 | config의 `enabled`, `play`, macOS player | 설정을 확인하고 한 번만 다시 실행 |
+| Queue가 멈춤 | 이전 합성/재생 실패 여부 | 실패 원인을 고친 뒤 다음 응답에서 새 worker 시작 |
+
+실패 후 provider를 자동 전환하거나 과금 요청을 몰래 재시도하지 않아. 한 번 실패하면 원인을 보고하고 멈추는 게 계약이야.
+
+## 비밀값과 로컬 상태 경계
+
+- API 키는 macOS Keychain 또는 환경변수에서만 읽어.
+- 개인 설정은 `$HOME/.config` 아래에 두고 Git에 넣지 않아.
+- 음성 결과와 redacted report는 `$HOME/.codex/artifacts/voice-speak`에 저장해.
+- 응답 Queue는 mode `0600` Unix socket을 쓰고 응답 본문이나 raw task ID를 디스크에 저장하지 않아.
+- 자동 provider fallback과 자동 재시도는 하지 않아.
+- 생성 음성, credential, 로컬 archive, `.DS_Store`, 사용자 콘텐츠는 커밋하지 않아.
 
 ## README 이미지도 루나가 골라줘♡
 
-기본 생성은 현재 이미지를 유지하고, `--random`은 기존과 다른 로컬 이미지를 골라 README를 다시 만들어.
+README는 template에서 생성돼. **`README.md`를 직접 고치지 말고** `templates/README.md.tmpl`을 수정해.
 
 ```bash
 pnpm run readme
@@ -62,35 +219,22 @@ pnpm run readme:random
 pnpm run readme:check
 ```
 
-특정 이미지를 고정하려면:
+`readme:random`은 로컬 이미지 10장 중 현재와 다른 이미지를 골라 README를 다시 만들어. 특정 이미지를 고정하려면:
 
 ```bash
 node scripts/generate-readme.mjs --image=kurose-runa-opening-03.png
 ```
 
-GitHub에서는 `assets/...` 상대경로로 렌더링되니까 오빠 컴퓨터의 절대경로 따위에 매달리지 않아♡ 정상적인 사람이라면 당연히 이렇게 하겠지만, 오빠는 말해줘야 알잖아? 킥킥♡
+GitHub에서는 repository-relative `assets/...` 경로로 표시돼. 오빠 컴퓨터의 절대경로에 매달리는 지저분한 README는 만들지 않아♡
 
-## 명령표
+## 개발 명령표
 
 | 명령 | 하는 일 |
 | --- | --- |
 | `pnpm run setup` | 설정 생성, Keychain 등록, 링크 설치, doctor 실행 |
-| `pnpm run doctor` | 의존성·설정·키 출처·링크·dry-run 진단 |
-| `pnpm run install:link` | 레포를 Codex 스킬 경로에 안전하게 링크 |
-| `pnpm run check` | README 동기화, 레포 검증, 전체 테스트 |
+| `pnpm run doctor` | 의존성·설정·credential 출처·링크·dry-run 진단 |
+| `pnpm run install:link` | 저장소를 Codex 스킬 경로에 비파괴적으로 링크 |
+| `pnpm run check` | README 동기화, 저장소 검증, 전체 테스트 |
 | `pnpm run readme:random` | README 대표 이미지를 다른 로컬 이미지로 교체 |
 
-## 비밀값 경계
-
-- API 키는 Keychain 또는 환경변수에서만 읽어.
-- 개인 설정은 `$HOME/.config` 아래에 두고 Git에 넣지 않아.
-- 음성 결과와 redacted report는 `$HOME/.codex/artifacts/voice-speak`에 저장해.
-- 자동 provider fallback과 자동 재시도는 하지 않아. 과금 요청을 몰래 두 번 날리는 짓은 금지야.
-
-## 개발
-
-```bash
-pnpm run check
-```
-
-오프닝 이미지는 `assets/`에 버전 파일로 추가해. 기존 파일을 덮어쓰지 마. 테스트 한두 개만 통과하고 다 됐다고 착각하면 루나가 그 초라한 자존심부터 구겨놓을 거야♡
+오프닝 이미지는 `assets/`에 versioned sibling으로 추가하고 기존 파일을 덮어쓰지 마. 변경 후에는 `pnpm run check`, 설치 링크를 통한 picker 실행, `git diff --check`까지 확인해♡ 테스트 한두 개만 통과하고 다 됐다고 우기면 루나가 그 초라한 자존심부터 접어버릴 거야♡
