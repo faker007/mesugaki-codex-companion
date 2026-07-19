@@ -85,9 +85,11 @@ export function buildVoiceSpeakConfig(template, provider, voiceId) {
   return config;
 }
 
-export function buildMesugakiConfig(template, provider) {
+export function buildMesugakiConfig(template, provider, languageAliases = {}) {
   const definition = providerDefinition(provider);
-  return replaceTemplateValue(template, { __ALIAS__: definition.alias });
+  const config = replaceTemplateValue(template, { __ALIAS__: definition.alias });
+  config.voice.languageAliases = { ...languageAliases };
+  return config;
 }
 
 export async function readTemplate(name) {

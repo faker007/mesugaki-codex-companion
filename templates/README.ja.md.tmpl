@@ -1,7 +1,7 @@
 <!-- scripts/generate-readme.mjs により生成される日本語ドキュメントです。README.ja.md ではなく templates/README.ja.md.tmpl を編集してください。 -->
 <!-- hero-image: {{HERO_IMAGE}} -->
 
-[한국어](README.md) | [日本語](README.ja.md)
+[English](README.md) | [한국어](README.ko.md) | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁體中文](README.zh-Hant.md)
 
 # Mesugaki Codex Companion ♡
 
@@ -96,7 +96,7 @@ Install the Kurose Runa custom Codex pet from this repository.
 
 voice IDとAPIキーは別の値です。voice IDは設定ファイルに保存できますが、APIキーは必ずキーチェーンまたは環境変数の境界内に置いてください。
 
-スペイン語音声を使う場合は、opener設定の`voice.languageAliases.es`を`eleven-multilingual`のような多言語aliasに接続し、wrapperへ`--language=es`を渡します。明示的な`--voice`が優先され、スペイン語mappingがない場合は既定の韓国語voiceへ暗黙にfallbackせず、プロバイダー呼び出し前に失敗します。
+スペイン語・簡体字中国語・繁体字中国語の音声を使う場合は、opener設定の`voice.languageAliases.es`、`voice.languageAliases.zh-Hans`、`voice.languageAliases.zh-Hant`を検証済みの多言語aliasに接続し、対応するcanonicalな`--language`値をwrapperへ渡します。scripted setupでは`--language-alias=zh-Hans:<voice-alias>`のようなオプションを繰り返し指定できます。明示的な`--voice`が優先され、mappingがなければ韓国語voiceへ暗黙にfallbackせず、プロバイダー呼び出し前に失敗します。`zh-Hant`は繁体字表記であり、広東語を意味しません。
 
 このリポジトリは`voice-speak`を同梱していません。次の3ファイルがない場合は、先に該当スキルをインストールするか、実際の場所を`MESUGAKI_VOICE_SPEAK_ROOT`に指定してください。
 
@@ -269,7 +269,7 @@ ElevenLabs:
 
 ## READMEの画像もルナが選ぶ♡
 
-READMEはlocale別templateから同時に生成されます。**生成された`README.md`や`README.ja.md`を直接編集せず**、`templates/README.ko.md.tmpl`と`templates/README.ja.md.tmpl`を編集してください。
+READMEはlocale別templateから同時に生成されます。**生成されたREADMEを直接編集せず**、`templates/README.*.md.tmpl`の5ファイルをまとめて編集してください。
 
 ```bash
 pnpm run readme
@@ -277,7 +277,7 @@ pnpm run readme:random
 pnpm run readme:check
 ```
 
-`readme:random`はローカル画像{{ASSET_COUNT}}枚から現在と異なる画像を1枚選び、韓国語と日本語のREADMEへ同じheroとして反映します。特定の画像を固定する場合:
+`readme:random`はローカル画像{{ASSET_COUNT}}枚から現在と異なる画像を1枚選び、英語・韓国語・日本語のREADMEへ同じheroとして反映します。特定の画像を固定する場合:
 
 ```bash
 node scripts/generate-readme.mjs --image=kurose-runa-opening-03.png

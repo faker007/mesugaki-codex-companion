@@ -119,27 +119,32 @@ export async function runDoctor(argv = process.argv.slice(2), overrides = {}) {
 
   const hasBlockingFailure = () => checks.some((check) => check.status === 'fail');
   if (!options.skipDryRun && !hasBlockingFailure()) {
-    try {
-      const result = await execFileAsync(process.execPath, [
-        resolve(repositoryRoot, 'scripts/speak-opening.mjs'),
-        '--text-base64=ZG9jdG9yLXByZWZsaWdodA==',
-        '--dry-run',
-        '--json',
-      ], {
-        encoding: 'utf8',
-        env: {
-          ...env,
-          MESUGAKI_OPENING_CONFIG: paths.mesugakiConfig,
-          VOICE_SPEAK_CONFIG: paths.voiceSpeakConfig,
-          MESUGAKI_VOICE_SPEAK_ROOT: paths.voiceSpeakRoot,
-        },
-        maxBuffer: 1_048_576,
-      });
-      const report = JSON.parse(result.stdout);
-      add('dry-run', report.ok && report.mode === 'dry-run' ? 'pass' : 'fail',
-        `${report.provider ?? 'unknown'} ${report.voiceAlias ?? 'unknown'} network=0`);
-    } catch (error) {
-      add('dry-run', 'fail', error instanceof Error ? error.message : String(error));
+    const dryRunLanguages = [null, ...Object.keys(mesugakiConfig?.voice?.languageAliases ?? {})];
+    for (const language of dryRunLanguages) {
+      const name = language === null ? 'dry-run' : `dry-run:${language}`;
+      try {
+        const result = await execFileAsync(process.execPath, [
+          resolve(repositoryRoot, 'scripts/speak-opening.mjs'),
+          '--text-base64=ZG9jdG9yLXByZWZsaWdodA==',
+          '--dry-run',
+          ...(language === null ? [] : [`--language=${language}`]),
+          '--json',
+        ], {
+          encoding: 'utf8',
+          env: {
+            ...env,
+            MESUGAKI_OPENING_CONFIG: paths.mesugakiConfig,
+            VOICE_SPEAK_CONFIG: paths.voiceSpeakConfig,
+            MESUGAKI_VOICE_SPEAK_ROOT: paths.voiceSpeakRoot,
+          },
+          maxBuffer: 1_048_576,
+        });
+        const report = JSON.parse(result.stdout);
+        add(name, report.ok && report.mode === 'dry-run' ? 'pass' : 'fail',
+          `${report.provider ?? 'unknown'} ${report.voiceAlias ?? 'unknown'} network=0`);
+      } catch (error) {
+        add(name, 'fail', error instanceof Error ? error.message : String(error));
+      }
     }
   } else if (options.skipDryRun) add('dry-run', 'skip', 'disabled by --skip-dry-run');
 

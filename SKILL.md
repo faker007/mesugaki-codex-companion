@@ -59,7 +59,9 @@ When maintaining or installing this skill from its source repository, read [refe
 
 Before routing, detect the optional **melancholy modifier** from requests such as `멜랑꼴리`, `쓸쓸하게`, `외로운 롤플레이`, `새벽 감성`, `가끔 진심이 새는 루나`, `wistful`, or `late-night roleplay`. When present, read [references/melancholy-roleplay.md](references/melancholy-roleplay.md), draft with its dialogue engine, and add `--melancholy` to any new synthesis wrapper invocation. The modifier never changes replay into synthesis and never overrides an explicit silent or text-only request.
 
-Before routing, also detect the optional **spoken language modifier**. Requests such as `스페인어로`, `스페인어 음성`, `Spanish voice`, or `speak in Spanish` select `es`. A selected spoken language applies to both a new opener and continued response voice until the user switches languages or asks to return to Korean. Draft the visible Runa dialogue in the selected language and pass `--language=es` to the synthesis wrapper. Do not translate code, paths, or technical identifiers. If the configured language alias is missing, make zero provider requests and report the sanitized configuration failure; never silently fall back to the default Korean voice.
+Before routing, also detect the optional **spoken language modifier**. Spanish requests select `es`. Requests containing `간체`, `简体`, `簡體`, `Simplified Chinese`, or `用简体中文` select `zh-Hans`; requests containing `번체`, `繁體`, `Traditional Chinese`, or `用繁體中文` select `zh-Hant`. Read [references/chinese-response-style.md](references/chinese-response-style.md) before drafting either Chinese variant. A selected spoken language applies to both a new opener and continued response voice in the current task until the user switches languages or asks to return to Korean. Draft the visible Runa dialogue in the selected language and pass its canonical tag through `--language`. Do not translate code, paths, or technical identifiers. `zh-Hant` means Traditional Chinese text and never silently selects Cantonese. If the configured language alias is missing, make zero provider requests and report the sanitized configuration failure; never fall back to the default Korean voice.
+
+When a request says only `중국어`, `中文`, or `Chinese` without enough evidence to choose a script, ask `要用简体中文还是繁體中文？` and make zero synthesis, queue, provider, network, or playback requests. Preserve an explicit `zh-Hans` or `zh-Hant` selection only in the current task context; do not persist it across tasks.
 
 ## Mode Routing
 
@@ -99,7 +101,7 @@ Report replay success concisely. The result must show `providerRequests: 0`, `ne
      --execute \
      --json
   ```
-4. Add `--language=es` before `--text-base64` only when the spoken language modifier selects Spanish. Add `--melancholy` only when the melancholy modifier is active. The wrapper then selects the configured `melancholy-mesugaki-asmr` preset without changing the normal sharp default.
+4. Add `--language=es`, `--language=zh-Hans`, or `--language=zh-Hant` before `--text-base64` when the matching spoken language is selected. Add `--melancholy` only when the melancholy modifier is active. The wrapper then selects the configured `melancholy-mesugaki-asmr` preset without changing the normal sharp default.
 5. The wrapper derives one local-user SHA-256 queue key independent of `CODEX_THREAD_ID`. Queue payloads from every Codex thread travel through the same mode-0600 Unix socket and are not persisted to disk.
 6. The configured cap is forwarded as `--max-segments=5`. Each job validates every selected paragraph, then the worker synthesizes and fully plays them sequentially. With `prefetchSegments: 1`, current playback overlaps only the next paragraph synthesis; synthesis concurrency and playback concurrency both remain one. At most eight response jobs may be active or pending globally.
 7. Enqueue returns a random `jobToken` and treats retries with that token as idempotent so worker-start races cannot duplicate synthesis. Query `response-queue.mjs --status --scope=global --job=<jobToken> --json` to inspect redacted in-memory progress: `queued`, `preflight`, `synthesizing`, `ready`, `playing`, `playing-and-synthesizing`, `completed`, `failed`, or `dropped`, plus segment counts. Status never includes response text or provider arguments.
@@ -131,7 +133,7 @@ Report replay success concisely. The result must show `providerRequests: 0`, `ne
       --json
     ```
   - Pass `--voice=<alias>` only when the user asks for a specific configured voice.
-  - Pass `--language=es` when the spoken language modifier selects Spanish. An explicit `--voice` override takes precedence over the configured language alias.
+  - Pass the selected canonical `--language=es`, `--language=zh-Hans`, or `--language=zh-Hant`. An explicit `--voice` override takes precedence over the configured language alias.
   - Use the configured fast mode, detached playback, no local character limit, and `sharp-mesugaki-asmr` emotion preset by default.
   - When the melancholy modifier is active, add `--melancholy`; this selects the configured `melancholy-mesugaki-asmr` preset for this invocation only.
   - Let the wrapper add English provider control tags. Do not put those tags in the visible dialogue.

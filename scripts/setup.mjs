@@ -26,6 +26,7 @@ const VALUE_OPTIONS = new Set([
   'voice-speak-root',
   'install-dir',
   'pet-install-dir',
+  'language-alias',
 ]);
 const FLAG_OPTIONS = new Set([
   'force-config',
@@ -60,10 +61,34 @@ export function parseSetupArgs(argv) {
     if (!value || (equals === -1 && value.startsWith('--'))) {
       throw new Error(`--${name} requires a value`);
     }
-    options[name] = value;
+    if (name === 'language-alias') {
+      options[name] ??= [];
+      options[name].push(value);
+    } else options[name] = value;
     if (equals === -1) index += 1;
   }
   return options;
+}
+
+const SUPPORTED_LANGUAGE_ALIASES = new Set(['ko', 'ja', 'es', 'zh-Hans', 'zh-Hant']);
+
+export function parseLanguageAliases(values = []) {
+  const aliases = {};
+  for (const value of values) {
+    const separator = value.indexOf(':');
+    const language = separator === -1 ? '' : value.slice(0, separator);
+    const alias = separator === -1 ? '' : value.slice(separator + 1).trim();
+    if (!SUPPORTED_LANGUAGE_ALIASES.has(language) || !alias) {
+      throw new Error(
+        '--language-alias must use <ko|ja|es|zh-Hans|zh-Hant>:<voice-alias>',
+      );
+    }
+    if (aliases[language] !== undefined) {
+      throw new Error(`duplicate language alias: ${language}`);
+    }
+    aliases[language] = alias;
+  }
+  return aliases;
 }
 
 function timestamp() {
@@ -167,7 +192,13 @@ async function assertVoiceSpeak(root) {
   }
 }
 
-async function assertExistingConfigCompatibility(paths, definition, voiceId, force) {
+async function assertExistingConfigCompatibility(
+  paths,
+  definition,
+  voiceId,
+  languageAliases,
+  force,
+) {
   if (force) return;
   const checks = [
     {
@@ -178,7 +209,10 @@ async function assertExistingConfigCompatibility(paths, definition, voiceId, for
     },
     {
       path: paths.mesugakiConfig,
-      validate: (config) => config.voice?.alias === definition.alias,
+      validate: (config) => config.voice?.alias === definition.alias
+        && Object.entries(languageAliases).every(
+          ([language, alias]) => config.voice?.languageAliases?.[language] === alias,
+        ),
       label: `${definition.alias} opener policy`,
     },
   ];
@@ -220,6 +254,7 @@ export async function runSetup(argv = process.argv.slice(2), overrides = {}) {
 
   const requested = await promptForSetup(options);
   const definition = providerDefinition(requested.provider);
+  const languageAliases = parseLanguageAliases(options['language-alias']);
   const [voiceTemplate, mesugakiTemplate] = await Promise.all([
     readTemplate('codex-voice-speak.config.json'),
     readTemplate('mesugaki-opening-visual.config.json'),
@@ -228,6 +263,7 @@ export async function runSetup(argv = process.argv.slice(2), overrides = {}) {
     paths,
     definition,
     requested.voiceId,
+    languageAliases,
     options['force-config'],
   );
   const configs = [
@@ -238,7 +274,7 @@ export async function runSetup(argv = process.argv.slice(2), overrides = {}) {
     ),
     await writeSecureJson(
       paths.mesugakiConfig,
-      buildMesugakiConfig(mesugakiTemplate, definition.provider),
+      buildMesugakiConfig(mesugakiTemplate, definition.provider, languageAliases),
       { force: options['force-config'] },
     ),
   ];
@@ -290,6 +326,7 @@ export async function runSetup(argv = process.argv.slice(2), overrides = {}) {
     ok: true,
     provider: definition.provider,
     voiceAlias: definition.alias,
+    languageAliases,
     configs,
     keychain,
     link,
@@ -304,6 +341,7 @@ function helpText() {
     `Scripted: node scripts/setup.mjs --provider=fish-audio --voice-id=<reference-id>\n\n` +
     `Flags: --force-config --replace-key --skip-keychain --skip-link --skip-doctor\n` +
     `       --install-pet --force-pet --pet-install-dir=<path>\n` +
+    `       --language-alias=<ko|ja|es|zh-Hans|zh-Hant>:<voice-alias> (repeatable)\n` +
     `       --config-root=<path> --voice-speak-root=<path> --install-dir=<path>\n` +
     `       --no-input --json --help\n`;
 }

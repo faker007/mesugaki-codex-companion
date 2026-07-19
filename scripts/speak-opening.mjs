@@ -15,7 +15,9 @@ const DEFAULT_VOICE_SPEAK_ROOT = resolve(
 );
 const DEFAULT_VOICE_SPEAK_SCRIPT = join(DEFAULT_VOICE_SPEAK_ROOT, 'scripts/speak.mjs');
 const DEFAULT_VOICE_RESPONSE_SCRIPT = join(DEFAULT_VOICE_SPEAK_ROOT, 'scripts/speak-response.mjs');
-const SUPPORTED_LANGUAGE_OPTIONS = new Set(['ko', 'ja', 'es']);
+export const SUPPORTED_LANGUAGE_OPTIONS = Object.freeze(['ko', 'ja', 'es', 'zh-Hans', 'zh-Hant']);
+const SUPPORTED_LANGUAGE_SET = new Set(SUPPORTED_LANGUAGE_OPTIONS);
+const SUPPORTED_LANGUAGE_LABEL = SUPPORTED_LANGUAGE_OPTIONS.join(', ');
 const VALUE_OPTIONS = new Set([
   'config',
   'text-base64',
@@ -118,8 +120,8 @@ export function parseArgs(argv) {
     && !['paragraph', 'heart'].includes(options['segment-by'])) {
     fail('INVALID_SEGMENT_MODE', '--segment-by must be paragraph or heart');
   }
-  if (options.language !== undefined && !SUPPORTED_LANGUAGE_OPTIONS.has(options.language)) {
-    fail('INVALID_LANGUAGE', '--language must be ko, ja, or es');
+  if (options.language !== undefined && !SUPPORTED_LANGUAGE_SET.has(options.language)) {
+    fail('INVALID_LANGUAGE', `--language must be one of: ${SUPPORTED_LANGUAGE_LABEL}`);
   }
   return options;
 }
@@ -182,12 +184,12 @@ async function loadConfig(path, deps) {
       fail('INVALID_CONFIG', 'voice.languageAliases must be an object');
     }
     for (const [language, alias] of Object.entries(config.voice.languageAliases)) {
-      if (!SUPPORTED_LANGUAGE_OPTIONS.has(language)
+      if (!SUPPORTED_LANGUAGE_SET.has(language)
         || typeof alias !== 'string'
         || !alias.trim()) {
         fail(
           'INVALID_CONFIG',
-          'voice.languageAliases may contain only non-empty ko, ja, or es aliases',
+          `voice.languageAliases may contain only non-empty aliases for: ${SUPPORTED_LANGUAGE_LABEL}`,
         );
       }
     }
@@ -470,10 +472,10 @@ export async function runOpeningVoice(argv, overrides = {}) {
 export function helpText() {
   return `speak-opening: configured mesugaki opener or response TTS\n\n` +
     `Usage:\n` +
-    `  speak-opening.mjs --text-base64=<utf8-base64> [--execute] [--language=<ko|ja|es>] [--voice=<alias>]\n\n` +
+    `  speak-opening.mjs --text-base64=<utf8-base64> [--execute] [--language=<${SUPPORTED_LANGUAGE_OPTIONS.join('|')}>] [--voice=<alias>]\n\n` +
     `  speak-opening.mjs --response [--ultra] [--queue] --text-base64=<utf8-base64> [--execute]\n\n` +
     `Options:\n` +
-    `  --execute | --dry-run  --language <ko|ja|es>  --voice <alias>  --provider <provider>\n` +
+    `  --execute | --dry-run  --language <${SUPPORTED_LANGUAGE_OPTIONS.join('|')}>  --voice <alias>  --provider <provider>\n` +
     `  --play | --no-play  --wait-playback | --detach-playback\n` +
     `  --fast | --no-fast  --melancholy | --emotion-preset <preset> | --no-emotion\n` +
     `  --response [--segment-by paragraph|heart]  --ultra [--max-segments <1-5>]\n` +

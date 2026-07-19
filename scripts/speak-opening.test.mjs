@@ -7,6 +7,7 @@ import test from 'node:test';
 import {
   OpeningVoiceError,
   buildVoiceSpeakArgs,
+  helpText,
   parseArgs,
   runOpeningVoice,
 } from './speak-opening.mjs';
@@ -20,6 +21,8 @@ function configFixture(overrides = {}) {
       alias: 'fish-default',
       languageAliases: {
         es: 'eleven-multilingual',
+        'zh-Hans': 'mandarin-simplified',
+        'zh-Hant': 'mandarin-traditional',
       },
       play: true,
       waitForPlayback: false,
@@ -114,6 +117,19 @@ test('rejects unsupported language options', () => {
   assert.throws(() => parseArgs(['--language=fr']), { code: 'INVALID_LANGUAGE' });
 });
 
+test('accepts canonical Simplified and Traditional Chinese language options', () => {
+  assert.equal(parseArgs(['--language=zh-Hans']).language, 'zh-Hans');
+  assert.equal(parseArgs(['--language=zh-Hant']).language, 'zh-Hant');
+  assert.throws(() => parseArgs(['--language=zh-hans']), { code: 'INVALID_LANGUAGE' });
+  assert.throws(() => parseArgs(['--language=zh-CN']), { code: 'INVALID_LANGUAGE' });
+});
+
+test('help lists both canonical Chinese script locales', () => {
+  assert.match(helpText(), /zh-Hans/);
+  assert.match(helpText(), /zh-Hant/);
+  assert.doesNotMatch(helpText(), /zh-CN|zh-TW/);
+});
+
 test('rejects conflicting emotion settings', () => {
   assert.throws(
     () => parseArgs(['--no-emotion', '--emotion-preset=whisper-asmr']),
@@ -187,6 +203,39 @@ test('routes Spanish synthesis through its configured multilingual alias', () =>
   assert.equal(args.includes('--voice=fish-default'), false);
 });
 
+test('routes Simplified Chinese through its configured voice alias', () => {
+  const args = buildVoiceSpeakArgs({
+    options: { execute: true, language: 'zh-Hans' },
+    config: configFixture(),
+    encodedText: encoded('连这点都不会吗，小笨蛋♡'),
+    voiceSpeakScript: '/voice-speak.mjs',
+  });
+  assert.ok(args.includes('--voice=mandarin-simplified'));
+  assert.equal(args.includes('--voice=mandarin-traditional'), false);
+});
+
+test('routes Traditional Chinese through its configured voice alias', () => {
+  const args = buildVoiceSpeakArgs({
+    options: { execute: true, language: 'zh-Hant' },
+    config: configFixture(),
+    encodedText: encoded('連這點都不會嗎，小笨蛋♡'),
+    voiceSpeakScript: '/voice-speak.mjs',
+  });
+  assert.ok(args.includes('--voice=mandarin-traditional'));
+  assert.equal(args.includes('--voice=mandarin-simplified'), false);
+});
+
+test('explicit voice override wins over a Chinese language alias', () => {
+  const args = buildVoiceSpeakArgs({
+    options: { execute: true, language: 'zh-Hant', voice: 'custom-mandarin' },
+    config: configFixture(),
+    encodedText: encoded('知道了嗎♡'),
+    voiceSpeakScript: '/voice-speak.mjs',
+  });
+  assert.ok(args.includes('--voice=custom-mandarin'));
+  assert.equal(args.includes('--voice=mandarin-traditional'), false);
+});
+
 test('explicit voice override takes precedence over a language alias', () => {
   const args = buildVoiceSpeakArgs({
     options: { execute: true, language: 'es', voice: 'fish-default' },
@@ -208,6 +257,35 @@ test('language routing fails before synthesis when its alias is not configured',
     voiceSpeakScript: '/voice-speak.mjs',
   }), { code: 'LANGUAGE_ALIAS_NOT_CONFIGURED' });
 });
+
+for (const language of ['zh-Hans', 'zh-Hant']) {
+  test(`${language} routing fails before synthesis when its alias is missing`, () => {
+    const config = configFixture();
+    delete config.voice.languageAliases[language];
+    assert.throws(() => buildVoiceSpeakArgs({
+      options: { execute: true, language },
+      config,
+      encodedText: encoded('测试♡'),
+      voiceSpeakScript: '/voice-speak.mjs',
+    }), { code: 'LANGUAGE_ALIAS_NOT_CONFIGURED' });
+  });
+}
+
+for (const language of ['zh-Hans', 'zh-Hant']) {
+  test(`missing ${language} mapping makes zero child invocation`, async () => {
+    const config = configFixture();
+    delete config.voice.languageAliases[language];
+    const h = await harness({ config });
+    await assert.rejects(() => runOpeningVoice([
+      `--language=${language}`,
+      `--config=${h.configPath}`,
+      `--text-base64=${encoded('测试♡')}`,
+      '--execute',
+    ], h.deps), { code: 'LANGUAGE_ALIAS_NOT_CONFIGURED' });
+    assert.equal(h.calls.length, 0);
+    assert.equal(h.queueCalls.length, 0);
+  });
+}
 
 test('builds final-response playback with the configured global response selector', () => {
   const args = buildVoiceSpeakArgs({
@@ -527,6 +605,29 @@ test('queued Spanish response resolves the language alias before enqueue', async
   assert.ok(h.queueCalls[0].responseArgs.includes('--voice=eleven-multilingual'));
   assert.equal(h.queueCalls[0].responseArgs.includes('--voice=fish-default'), false);
 });
+
+for (const [language, alias, text] of [
+  ['zh-Hans', 'mandarin-simplified', '真听话♡'],
+  ['zh-Hant', 'mandarin-traditional', '真聽話♡'],
+]) {
+  test(`queued ${language} response preserves its canonical locale and voice alias`, async () => {
+    const config = configFixture({ maxCharacters: null });
+    config.responseVoice.scope = 'all';
+    config.responseVoice.queue.enabled = true;
+    const h = await harness({ config });
+    const result = await runOpeningVoice([
+      '--response',
+      '--queue',
+      `--language=${language}`,
+      `--config=${h.configPath}`,
+      `--text-base64=${encoded(text)}`,
+      '--execute',
+    ], h.deps);
+    assert.equal(result.language, language);
+    assert.equal(h.queueCalls.length, 1);
+    assert.ok(h.queueCalls[0].responseArgs.includes(`--voice=${alias}`));
+  });
+}
 
 test('no-queue bypasses enabled session queue for one response', async () => {
   const config = configFixture({ maxCharacters: null });

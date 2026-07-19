@@ -44,6 +44,6 @@ The installer is intentionally non-destructive. It creates a missing link, accep
 2. Put detailed optional behavior in `references/` and deterministic behavior in `scripts/`.
 3. Add opener images as versioned siblings in `assets/`; do not overwrite existing assets.
 4. Run `pnpm run check` after every code or instruction change. This includes the repository-native pet validator.
-5. Edit both `templates/README.ko.md.tmpl` and `templates/README.ja.md.tmpl` when shared behavior changes, then run `pnpm run readme`. Use `pnpm run readme:random` to select one different bundled hero image for every locale without changing the templates.
+5. Edit all five `templates/README.*.md.tmpl` locale sources when shared behavior changes, then run `pnpm run readme`. Use `pnpm run readme:random` to select one different bundled hero image for every locale without changing the templates.
 6. Run the bundled picker through the installed link to verify the installation boundary.
 7. Review `git diff --check`, `git status --short`, and staged file sizes before committing.

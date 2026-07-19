@@ -12,7 +12,10 @@ const requiredFiles = [
   'CONTRIBUTING.md',
   'LICENSE',
   'README.md',
+  'README.ko.md',
   'README.ja.md',
+  'README.zh-Hans.md',
+  'README.zh-Hant.md',
   'SECURITY.md',
   'agents/openai.yaml',
   'package.json',
@@ -20,10 +23,14 @@ const requiredFiles = [
   'pet-assets/kurose-runa/spritesheet.webp',
   'scripts/install-pet.mjs',
   'scripts/validate-pet.mjs',
+  'templates/README.en.md.tmpl',
   'templates/README.ko.md.tmpl',
   'templates/README.ja.md.tmpl',
+  'templates/README.zh-Hans.md.tmpl',
+  'templates/README.zh-Hant.md.tmpl',
   'templates/codex-voice-speak.config.json',
   'templates/mesugaki-opening-visual.config.json',
+  'references/chinese-response-style.md',
 ];
 const textExtensions = new Set(['', '.json', '.md', '.mjs', '.tmpl', '.yaml', '.yml']);
 const supportedImages = new Set(['.png', '.jpg', '.jpeg', '.webp', '.avif']);

@@ -86,7 +86,9 @@ README.ja.md
 - macOS Keychain, API 키 보관, Fish Audio·ElevenLabs 계정 책임, custom pet 지원 한계를 생략하지 않는다.
 - 자연스러움 검수와 명령 재현성 검수를 분리한다.
 
-### D5. 영문 기본 README 전환은 별도 의사결정이다
+### D5. 영문 기본 README 전환은 별도 의사결정이다 — 승인됨
+
+2026-07-19 15:45 JST에 저장소 관리자가 영어 버전 추가를 명시적으로 요청했다. 아래 수요 지표를 더 기다리지 않고 [영어 기본 README 전환 및 3개 언어 운영 실행 계획](english-default-readme-localization-plan.md)을 후속 기준으로 사용한다.
 
 다음 중 2개 이상을 충족할 때 P2로 검토한다.
 
@@ -269,6 +271,12 @@ git diff --check
 ## 타임라인
 
 최신 기록이 위에 온다.
+
+### 2026-07-19 15:45 JST
+
+- 저장소 관리자가 영어 버전 추가를 요청해 D5의 영문 기본 README 전환을 승인 상태로 변경했다.
+- 후속 구현 범위는 별도 [영어 기본 README 전환 및 3개 언어 운영 실행 계획](english-default-readme-localization-plan.md)으로 분리했다.
+- 기존 일본어 구현·자동 검증 상태와 원어민 검수 대기 상태는 변경하지 않았다.
 
 ### 2026-07-19 13:02 JST
 

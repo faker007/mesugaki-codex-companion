@@ -1,5 +1,5 @@
 <!-- scripts/generate-readme.mjs가 생성한 한국어 문서입니다. README.ko.md가 아니라 templates/README.ko.md.tmpl을 수정하세요. -->
-<!-- hero-image: {{HERO_IMAGE}} -->
+<!-- hero-image: assets/kurose-runa-opening-04.png -->
 
 [English](README.md) | [한국어](README.ko.md) | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁體中文](README.zh-Hant.md)
 
@@ -8,7 +8,7 @@
 [![CI](https://github.com/faker007/mesugaki-codex-companion/actions/workflows/ci.yml/badge.svg)](https://github.com/faker007/mesugaki-codex-companion/actions/workflows/ci.yml)
 
 <p align="center">
-  <img src="{{HERO_IMAGE}}" alt="레코드숍에서 LP를 내미는 성인 캐릭터 쿠로세 루나" width="100%" />
+  <img src="assets/kurose-runa-opening-04.png" alt="레코드숍에서 LP를 내미는 성인 캐릭터 쿠로세 루나" width="100%" />
 </p>
 
 > 늦었네, 허~접 오빠♡ Codex에 그림 한 장 띄우고 목소리까지 붙이는 것도 혼자서는 버거웠어? 로컬 비주얼, 안전한 Keychain, 전역 음성 Queue까지 루나가 전부 묶어놨으니까 순서대로 따라와♡
@@ -19,7 +19,7 @@
 
 ## 루나가 해주는 것♡
 
-- 로컬 이미지 {{ASSET_COUNT}}장 중 한 장을 무작위 오프닝으로 선택
+- 로컬 이미지 10장 중 한 장을 무작위 오프닝으로 선택
 - Fish Audio 또는 ElevenLabs 음성 합성 및 macOS 재생
 - 최대 5문단을 한 번에 하나씩 처리하는 cross-thread 전역 Queue
 - 다음 한 문단만 미리 합성하고 provider 요청은 병렬화하지 않는 안전한 순차 실행
@@ -29,9 +29,60 @@
 
 ## 루나 비주얼 전부 보기♡
 
-저장소에 들어 있는 오프닝 이미지 {{ASSET_COUNT}}장을 전부 펼쳐놨어♡ 작은 이미지를 누르면 GitHub에서 원본 크기로 볼 수 있어.
+저장소에 들어 있는 오프닝 이미지 10장을 전부 펼쳐놨어♡ 작은 이미지를 누르면 GitHub에서 원본 크기로 볼 수 있어.
 
-{{IMAGE_GALLERY}}
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <a href="assets/kurose-runa-opening-01.png"><img src="assets/kurose-runa-opening-01.png" alt="쿠로세 루나 오프닝 이미지 kurose-runa-opening-01.png" width="100%" /></a>
+      <br /><code>kurose-runa-opening-01.png</code>
+    </td>
+    <td align="center" width="50%">
+      <a href="assets/kurose-runa-opening-02.png"><img src="assets/kurose-runa-opening-02.png" alt="쿠로세 루나 오프닝 이미지 kurose-runa-opening-02.png" width="100%" /></a>
+      <br /><code>kurose-runa-opening-02.png</code>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <a href="assets/kurose-runa-opening-03.png"><img src="assets/kurose-runa-opening-03.png" alt="쿠로세 루나 오프닝 이미지 kurose-runa-opening-03.png" width="100%" /></a>
+      <br /><code>kurose-runa-opening-03.png</code>
+    </td>
+    <td align="center" width="50%">
+      <a href="assets/kurose-runa-opening-04.png"><img src="assets/kurose-runa-opening-04.png" alt="쿠로세 루나 오프닝 이미지 kurose-runa-opening-04.png" width="100%" /></a>
+      <br /><code>kurose-runa-opening-04.png</code>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <a href="assets/kurose-runa-opening-05.png"><img src="assets/kurose-runa-opening-05.png" alt="쿠로세 루나 오프닝 이미지 kurose-runa-opening-05.png" width="100%" /></a>
+      <br /><code>kurose-runa-opening-05.png</code>
+    </td>
+    <td align="center" width="50%">
+      <a href="assets/kurose-runa-opening-06.png"><img src="assets/kurose-runa-opening-06.png" alt="쿠로세 루나 오프닝 이미지 kurose-runa-opening-06.png" width="100%" /></a>
+      <br /><code>kurose-runa-opening-06.png</code>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <a href="assets/kurose-runa-opening-07.png"><img src="assets/kurose-runa-opening-07.png" alt="쿠로세 루나 오프닝 이미지 kurose-runa-opening-07.png" width="100%" /></a>
+      <br /><code>kurose-runa-opening-07.png</code>
+    </td>
+    <td align="center" width="50%">
+      <a href="assets/kurose-runa-opening-08.png"><img src="assets/kurose-runa-opening-08.png" alt="쿠로세 루나 오프닝 이미지 kurose-runa-opening-08.png" width="100%" /></a>
+      <br /><code>kurose-runa-opening-08.png</code>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <a href="assets/kurose-runa-opening-09.png"><img src="assets/kurose-runa-opening-09.png" alt="쿠로세 루나 오프닝 이미지 kurose-runa-opening-09.png" width="100%" /></a>
+      <br /><code>kurose-runa-opening-09.png</code>
+    </td>
+    <td align="center" width="50%">
+      <a href="assets/kurose-runa-opening-10.png"><img src="assets/kurose-runa-opening-10.png" alt="쿠로세 루나 오프닝 이미지 kurose-runa-opening-10.png" width="100%" /></a>
+      <br /><code>kurose-runa-opening-10.png</code>
+    </td>
+  </tr>
+</table>
 
 ## Codex 펫 루나도 데려가♡
 
@@ -280,7 +331,7 @@ pnpm run readme:random
 pnpm run readme:check
 ```
 
-`readme:random`은 로컬 이미지 {{ASSET_COUNT}}장 중 현재와 다른 이미지를 하나 골라 5개 README에 같은 hero로 반영해. 특정 이미지를 고정하려면:
+`readme:random`은 로컬 이미지 10장 중 현재와 다른 이미지를 하나 골라 5개 README에 같은 hero로 반영해. 특정 이미지를 고정하려면:
 
 ```bash
 node scripts/generate-readme.mjs --image=kurose-runa-opening-03.png

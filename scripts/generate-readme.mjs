@@ -12,9 +12,16 @@ const supported = new Set(['.png', '.jpg', '.jpeg', '.webp', '.avif']);
 
 export const README_LOCALES = Object.freeze([
   Object.freeze({
+    locale: 'en',
+    templatePath: 'templates/README.en.md.tmpl',
+    outputPath: 'README.md',
+    languageLabel: 'English',
+    galleryAlt: 'Kurose Runa opening visual',
+  }),
+  Object.freeze({
     locale: 'ko',
     templatePath: 'templates/README.ko.md.tmpl',
-    outputPath: 'README.md',
+    outputPath: 'README.ko.md',
     languageLabel: '한국어',
     galleryAlt: '쿠로세 루나 오프닝 이미지',
   }),
@@ -24,6 +31,20 @@ export const README_LOCALES = Object.freeze([
     outputPath: 'README.ja.md',
     languageLabel: '日本語',
     galleryAlt: '黒瀬ルナのオープニング画像',
+  }),
+  Object.freeze({
+    locale: 'zh-Hans',
+    templatePath: 'templates/README.zh-Hans.md.tmpl',
+    outputPath: 'README.zh-Hans.md',
+    languageLabel: '简体中文',
+    galleryAlt: '黑濑露娜开场图片',
+  }),
+  Object.freeze({
+    locale: 'zh-Hant',
+    templatePath: 'templates/README.zh-Hant.md.tmpl',
+    outputPath: 'README.zh-Hant.md',
+    languageLabel: '繁體中文',
+    galleryAlt: '黑瀨露娜開場圖片',
   }),
 ]);
 
@@ -90,7 +111,7 @@ export function validateLocales(locales) {
   return locales;
 }
 
-export function renderGallery(assets, { columns = 2, altPrefix = README_LOCALES[0].galleryAlt } = {}) {
+export function renderGallery(assets, { columns = 2, altPrefix = 'Kurose Runa opening visual' } = {}) {
   if (!Number.isInteger(columns) || columns < 1) throw new Error('gallery columns must be a positive integer');
   if (!assets.length) throw new Error('README gallery requires at least one image');
   const cellWidth = `${Math.floor(100 / columns)}%`;
