@@ -143,7 +143,7 @@ async function loadConfig(path, deps) {
   try {
     raw = await deps.readFile(path, 'utf8');
   } catch (error) {
-    if (error?.code === 'ENOENT') fail('CONFIG_NOT_FOUND', `config not found: ${path}`);
+    if (error?.code === 'ENOENT') return null;
     throw error;
   }
   let config;
@@ -334,6 +334,18 @@ export async function runOpeningVoice(argv, overrides = {}) {
   const config = await loadConfig(configPath, deps);
   const text = decodeText(options['text-base64']);
   const characterCount = [...text].length;
+  if (config === null) {
+    return {
+      ok: true,
+      mode: 'disabled',
+      reason: 'config-not-found',
+      characterCount,
+      childInvocations: 0,
+      providerRequests: 0,
+      networkRequests: 0,
+      playback: { requested: false, status: 'not-run' },
+    };
+  }
   if (!options.response
     && config.voice.maxCharacters !== null
     && characterCount > config.voice.maxCharacters) {
@@ -347,8 +359,11 @@ export async function runOpeningVoice(argv, overrides = {}) {
     return {
       ok: true,
       mode: 'disabled',
+      reason: !config.voice.enabled ? 'voice-disabled' : 'response-voice-disabled',
       characterCount,
       childInvocations: 0,
+      providerRequests: 0,
+      networkRequests: 0,
       playback: { requested: false, status: 'not-run' },
     };
   }

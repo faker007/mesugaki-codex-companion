@@ -247,8 +247,54 @@ test('disabled config makes zero child invocations', async () => {
     '--execute',
   ], h.deps);
   assert.equal(result.mode, 'disabled');
+  assert.equal(result.reason, 'voice-disabled');
   assert.equal(result.childInvocations, 0);
+  assert.equal(result.providerRequests, 0);
+  assert.equal(result.networkRequests, 0);
   assert.equal(h.calls.length, 0);
+});
+
+test('missing personal config is treated as disabled with zero voice requests', async () => {
+  const h = await harness();
+  const configPath = join(h.root, 'missing-config.json');
+  const openingResult = await runOpeningVoice([
+    `--config=${configPath}`,
+    `--text-base64=${encoded()}`,
+    '--execute',
+  ], h.deps);
+  const responseResult = await runOpeningVoice([
+    '--response',
+    '--queue',
+    `--config=${configPath}`,
+    `--text-base64=${encoded('응답♡')}`,
+    '--execute',
+  ], h.deps);
+  for (const result of [openingResult, responseResult]) {
+    assert.equal(result.mode, 'disabled');
+    assert.equal(result.reason, 'config-not-found');
+    assert.equal(result.childInvocations, 0);
+    assert.equal(result.providerRequests, 0);
+    assert.equal(result.networkRequests, 0);
+    assert.deepEqual(result.playback, { requested: false, status: 'not-run' });
+  }
+  assert.equal(h.calls.length, 0);
+  assert.equal(h.queueCalls.length, 0);
+});
+
+test('malformed personal config remains an error instead of being muted', async () => {
+  const h = await harness();
+  const configPath = join(h.root, 'malformed-config.json');
+  await writeFile(configPath, '{');
+  await assert.rejects(
+    runOpeningVoice([
+      `--config=${configPath}`,
+      `--text-base64=${encoded()}`,
+      '--execute',
+    ], h.deps),
+    { code: 'INVALID_CONFIG' },
+  );
+  assert.equal(h.calls.length, 0);
+  assert.equal(h.queueCalls.length, 0);
 });
 
 test('disabled response voice makes zero child invocations', async () => {
@@ -262,7 +308,10 @@ test('disabled response voice makes zero child invocations', async () => {
     '--execute',
   ], h.deps);
   assert.equal(result.mode, 'disabled');
+  assert.equal(result.reason, 'response-voice-disabled');
   assert.equal(result.childInvocations, 0);
+  assert.equal(result.providerRequests, 0);
+  assert.equal(result.networkRequests, 0);
   assert.equal(h.calls.length, 0);
 });
 

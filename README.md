@@ -267,6 +267,11 @@ $mesugaki-opening-visual 마지막 문단만 읽어줘.
 | 다시 재생 | 최신 MP3 재사용, provider 요청 0회 |
 | `조용히`, `이미지만`, `텍스트만` | 음성 요청 0회 |
 
+개인 정책 파일 `$HOME/.config/mesugaki-opening-visual/config.json`이 아직 없으면 오프닝과 응답은
+이미지·텍스트만 반환하고 음성 child/provider/network/playback 요청을 모두 0회로 유지해. 다만
+`doctor`는 설치 미완료를 계속 실패로 보고하고, 이미 존재하는 설정의 JSON이나 값이 잘못된 경우는
+의도적인 무음으로 숨기지 않고 오류로 처리해.
+
 ## 키만 다시 등록하기
 
 Fish Audio:

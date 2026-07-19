@@ -265,6 +265,9 @@ Example shape:
 - Do not persist user messages, cookies, or personal data in the skill directory.
 - If an image path is unreadable, select another supported asset and continue.
 - If voice config has `enabled: false`, produce image and text with zero TTS requests.
+- If the personal opener policy config does not exist, treat voice as disabled and make zero child,
+  provider, network, or playback requests. Keep `doctor` responsible for reporting the incomplete
+  installation; malformed or invalid existing config must still fail.
 - If voice synthesis fails, preserve the text opener, make no second request, and report the sanitized failure after the opener.
 - If replay fails, do not synthesize a replacement.
 - If final-response selection finds no safe heart, fall back to the last safe prose paragraph. If no safe prose exists, make zero provider requests and report the selection failure.

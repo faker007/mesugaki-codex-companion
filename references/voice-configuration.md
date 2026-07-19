@@ -45,6 +45,10 @@ $HOME/.config/mesugaki-opening-visual/config.json
 ```
 
 - Set `enabled` to `false` for image-and-text-only openings.
+- If this personal config file does not exist, runtime opener and response voice calls return
+  `mode: disabled` with zero child, provider, network, or playback requests. `doctor` still reports
+  the missing file as an incomplete installation. Invalid JSON and invalid configured values remain
+  errors instead of being mistaken for an intentional mute state.
 - Change `alias` to any alias in `$HOME/.config/codex-voice-speak/config.json`.
 - Keep `provider` at `auto` so the alias selects Fish Audio or ElevenLabs.
 - Set `play` to `false` to create an MP3 without playing it.
