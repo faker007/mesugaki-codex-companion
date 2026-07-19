@@ -4,6 +4,7 @@
     "enabled": true,
     "provider": "auto",
     "alias": "__ALIAS__",
+    "languageAliases": {},
     "play": true,
     "waitForPlayback": false,
     "fast": true,

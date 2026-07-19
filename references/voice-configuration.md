@@ -17,6 +17,9 @@ $HOME/.config/mesugaki-opening-visual/config.json
     "enabled": true,
     "provider": "auto",
     "alias": "fish-default",
+    "languageAliases": {
+      "es": "eleven-multilingual"
+    },
     "play": true,
     "waitForPlayback": false,
     "fast": true,
@@ -50,6 +53,7 @@ $HOME/.config/mesugaki-opening-visual/config.json
   the missing file as an incomplete installation. Invalid JSON and invalid configured values remain
   errors instead of being mistaken for an intentional mute state.
 - Change `alias` to any alias in `$HOME/.config/codex-voice-speak/config.json`.
+- Use `languageAliases` for opt-in spoken-language routing. Supported keys are `ko`, `ja`, and `es`; omitted keys are unavailable instead of silently falling back. The recommended Spanish mapping is `"es": "eleven-multilingual"`.
 - Keep `provider` at `auto` so the alias selects Fish Audio or ElevenLabs.
 - Set `play` to `false` to create an MP3 without playing it.
 - Keep `waitForPlayback` at `false` to return after `afplay` starts; set it to `true` only when the caller must verify full playback completion.
@@ -91,7 +95,7 @@ $MESUGAKI_SKILL_ROOT/scripts/speak-opening.mjs
 
 The wrapper reads this config and executes the provider-neutral `voice-speak` CLI with `shell: false`. A `null` character limit forwards `--no-char-limit`; response mode forwards the configured segment policy; the normal configuration forwards `sharp-mesugaki-asmr`, while `--melancholy` forwards the configured `melancholy-mesugaki-asmr`. Openers make at most one direct child invocation. Queued response calls make zero foreground provider or network requests and return an enqueue receipt. Detached opener playback returns after the player starts and records `playback.status = "started"`.
 
-Per-request instructions can override the alias, provider, fast mode, and playback. A user request for `silent`, `조용히`, `이미지만`, or `텍스트만` must skip the wrapper entirely.
+Per-request instructions can override the language, alias, provider, fast mode, and playback. `--language=es` selects `voice.languageAliases.es`; an explicit `--voice=<alias>` takes precedence over that mapping. A missing mapping fails before any child or provider request. A user request for `silent`, `조용히`, `이미지만`, or `텍스트만` must skip the wrapper entirely.
 
 ## Response Invocation Contract
 

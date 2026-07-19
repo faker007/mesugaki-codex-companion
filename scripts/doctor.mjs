@@ -92,6 +92,18 @@ export async function runDoctor(argv = process.argv.slice(2), overrides = {}) {
       const source = await credentialSource(voiceConfig.providers?.[alias.provider], env);
       add('credential', source ? 'pass' : 'fail', source ?? `missing for ${alias.provider}`);
     }
+    for (const [language, languageAliasName] of Object.entries(
+      mesugakiConfig.voice?.languageAliases ?? {},
+    )) {
+      const languageAlias = voiceConfig.voices?.[languageAliasName];
+      add(
+        `voice-language-alias:${language}`,
+        languageAlias ? 'pass' : 'fail',
+        languageAlias
+          ? `${languageAliasName} -> ${languageAlias.provider}`
+          : `missing alias: ${languageAliasName}`,
+      );
+    }
   }
 
   try {

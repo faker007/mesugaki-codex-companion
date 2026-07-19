@@ -15,10 +15,12 @@ const DEFAULT_VOICE_SPEAK_ROOT = resolve(
 );
 const DEFAULT_VOICE_SPEAK_SCRIPT = join(DEFAULT_VOICE_SPEAK_ROOT, 'scripts/speak.mjs');
 const DEFAULT_VOICE_RESPONSE_SCRIPT = join(DEFAULT_VOICE_SPEAK_ROOT, 'scripts/speak-response.mjs');
+const SUPPORTED_LANGUAGE_OPTIONS = new Set(['ko', 'ja', 'es']);
 const VALUE_OPTIONS = new Set([
   'config',
   'text-base64',
   'voice',
+  'language',
   'provider',
   'emotion-preset',
   'max-segments',
@@ -116,6 +118,9 @@ export function parseArgs(argv) {
     && !['paragraph', 'heart'].includes(options['segment-by'])) {
     fail('INVALID_SEGMENT_MODE', '--segment-by must be paragraph or heart');
   }
+  if (options.language !== undefined && !SUPPORTED_LANGUAGE_OPTIONS.has(options.language)) {
+    fail('INVALID_LANGUAGE', '--language must be ko, ja, or es');
+  }
   return options;
 }
 
@@ -169,6 +174,23 @@ async function loadConfig(path, deps) {
   }
   if (config.voice.maxCharacters !== null) {
     parsePositiveInteger(config.voice.maxCharacters, 'voice.maxCharacters', 2_000);
+  }
+  if (config.voice.languageAliases !== undefined) {
+    if (config.voice.languageAliases === null
+      || typeof config.voice.languageAliases !== 'object'
+      || Array.isArray(config.voice.languageAliases)) {
+      fail('INVALID_CONFIG', 'voice.languageAliases must be an object');
+    }
+    for (const [language, alias] of Object.entries(config.voice.languageAliases)) {
+      if (!SUPPORTED_LANGUAGE_OPTIONS.has(language)
+        || typeof alias !== 'string'
+        || !alias.trim()) {
+        fail(
+          'INVALID_CONFIG',
+          'voice.languageAliases may contain only non-empty ko, ja, or es aliases',
+        );
+      }
+    }
   }
   parsePositiveInteger(config.voice.timeoutMs, 'voice.timeoutMs', 120_000);
   if (config.responseVoice !== undefined) {
@@ -239,7 +261,16 @@ export function buildVoiceSpeakArgs({
   const responseVoice = config.responseVoice ?? { enabled: true, ultraMaxSegments: 5 };
   const allSegments = isResponse && (options.ultra || responseVoice.scope === 'all');
   const provider = options.provider ?? voice.provider;
-  const alias = options.voice ?? voice.alias;
+  const languageAlias = options.language === undefined
+    ? null
+    : voice.languageAliases?.[options.language];
+  if (options.language !== undefined && options.voice === undefined && !languageAlias) {
+    fail(
+      'LANGUAGE_ALIAS_NOT_CONFIGURED',
+      `voice.languageAliases.${options.language} is not configured`,
+    );
+  }
+  const alias = options.voice ?? languageAlias ?? voice.alias;
   const play = options['no-play'] ? false : options.play ? true : voice.play;
   const waitForPlayback = allSegments
     ? true
@@ -403,6 +434,7 @@ export async function runOpeningVoice(argv, overrides = {}) {
     return {
       ok: true,
       mode: 'queued',
+      language: options.language ?? null,
       integration: 'mesugaki-opening-visual:response-queue',
       childInvocations: 0,
       providerRequests: 0,
@@ -427,6 +459,7 @@ export async function runOpeningVoice(argv, overrides = {}) {
   }
   return {
     ...result,
+    language: options.language ?? null,
     integration: options.response
       ? 'mesugaki-opening-visual:response'
       : 'mesugaki-opening-visual:opening',
@@ -437,10 +470,10 @@ export async function runOpeningVoice(argv, overrides = {}) {
 export function helpText() {
   return `speak-opening: configured mesugaki opener or response TTS\n\n` +
     `Usage:\n` +
-    `  speak-opening.mjs --text-base64=<utf8-base64> [--execute] [--voice=<alias>]\n\n` +
+    `  speak-opening.mjs --text-base64=<utf8-base64> [--execute] [--language=<ko|ja|es>] [--voice=<alias>]\n\n` +
     `  speak-opening.mjs --response [--ultra] [--queue] --text-base64=<utf8-base64> [--execute]\n\n` +
     `Options:\n` +
-    `  --execute | --dry-run  --voice <alias>  --provider <provider>\n` +
+    `  --execute | --dry-run  --language <ko|ja|es>  --voice <alias>  --provider <provider>\n` +
     `  --play | --no-play  --wait-playback | --detach-playback\n` +
     `  --fast | --no-fast  --melancholy | --emotion-preset <preset> | --no-emotion\n` +
     `  --response [--segment-by paragraph|heart]  --ultra [--max-segments <1-5>]\n` +

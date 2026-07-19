@@ -18,6 +18,9 @@ function configFixture(overrides = {}) {
       enabled: true,
       provider: 'auto',
       alias: 'fish-default',
+      languageAliases: {
+        es: 'eleven-multilingual',
+      },
       play: true,
       waitForPlayback: false,
       fast: false,
@@ -107,6 +110,10 @@ test('rejects conflicting speed settings', () => {
   assert.throws(() => parseArgs(['--fast', '--no-fast']), { code: 'CONFLICTING_SPEED' });
 });
 
+test('rejects unsupported language options', () => {
+  assert.throws(() => parseArgs(['--language=fr']), { code: 'INVALID_LANGUAGE' });
+});
+
 test('rejects conflicting emotion settings', () => {
   assert.throws(
     () => parseArgs(['--no-emotion', '--emotion-preset=whisper-asmr']),
@@ -166,6 +173,40 @@ test('builds one provider-neutral voice-speak invocation', () => {
   assert.ok(args.includes('--emotion-preset=sharp-mesugaki-asmr'));
   assert.equal(args.some((value) => value.startsWith('--segment-by=')), false);
   assert.equal(args.filter((value) => value === '--execute').length, 1);
+});
+
+test('routes Spanish synthesis through its configured multilingual alias', () => {
+  const args = buildVoiceSpeakArgs({
+    options: { execute: true, language: 'es' },
+    config: configFixture(),
+    encodedText: encoded('Hola, ¿quieres escucharme?♡'),
+    voiceSpeakScript: '/voice-speak.mjs',
+  });
+  assert.ok(args.includes('--provider=auto'));
+  assert.ok(args.includes('--voice=eleven-multilingual'));
+  assert.equal(args.includes('--voice=fish-default'), false);
+});
+
+test('explicit voice override takes precedence over a language alias', () => {
+  const args = buildVoiceSpeakArgs({
+    options: { execute: true, language: 'es', voice: 'fish-default' },
+    config: configFixture(),
+    encodedText: encoded('Hola♡'),
+    voiceSpeakScript: '/voice-speak.mjs',
+  });
+  assert.ok(args.includes('--voice=fish-default'));
+  assert.equal(args.includes('--voice=eleven-multilingual'), false);
+});
+
+test('language routing fails before synthesis when its alias is not configured', () => {
+  const config = configFixture();
+  delete config.voice.languageAliases;
+  assert.throws(() => buildVoiceSpeakArgs({
+    options: { execute: true, language: 'es' },
+    config,
+    encodedText: encoded('Hola♡'),
+    voiceSpeakScript: '/voice-speak.mjs',
+  }), { code: 'LANGUAGE_ALIAS_NOT_CONFIGURED' });
 });
 
 test('builds final-response playback with the configured global response selector', () => {
@@ -466,6 +507,25 @@ test('queued response returns immediately and makes zero foreground child invoca
   assert.ok(h.queueCalls[0].responseArgs.includes('--segment-by=paragraph'));
   assert.ok(h.queueCalls[0].responseArgs.includes('--prefetch'));
   assert.equal(JSON.stringify(result).includes('thread-secret-value'), false);
+});
+
+test('queued Spanish response resolves the language alias before enqueue', async () => {
+  const config = configFixture({ maxCharacters: null });
+  config.responseVoice.scope = 'all';
+  config.responseVoice.queue.enabled = true;
+  const h = await harness({ config });
+  const result = await runOpeningVoice([
+    '--response',
+    '--queue',
+    '--language=es',
+    `--config=${h.configPath}`,
+    `--text-base64=${encoded('Qué obediente eres♡')}`,
+    '--execute',
+  ], h.deps);
+  assert.equal(result.language, 'es');
+  assert.equal(h.queueCalls.length, 1);
+  assert.ok(h.queueCalls[0].responseArgs.includes('--voice=eleven-multilingual'));
+  assert.equal(h.queueCalls[0].responseArgs.includes('--voice=fish-default'), false);
 });
 
 test('no-queue bypasses enabled session queue for one response', async () => {

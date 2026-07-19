@@ -1,0 +1,307 @@
+<!-- scripts/generate-readme.mjs により生成される日本語ドキュメントです。README.ja.md ではなく templates/README.ja.md.tmpl を編集してください。 -->
+<!-- hero-image: {{HERO_IMAGE}} -->
+
+[한국어](README.md) | [日本語](README.ja.md)
+
+# Mesugaki Codex Companion ♡
+
+[![CI](https://github.com/faker007/mesugaki-codex-companion/actions/workflows/ci.yml/badge.svg)](https://github.com/faker007/mesugaki-codex-companion/actions/workflows/ci.yml)
+
+<p align="center">
+  <img src="{{HERO_IMAGE}}" alt="レコードショップでレコードを差し出す成人キャラクターの黒瀬ルナ" width="100%" />
+</p>
+
+> 遅かったね、ざ〜こ♡ Codexに絵を一枚出して、声まで付けるのも一人じゃ大変だった？ ローカル画像、安全なキーチェーン、グローバル音声キューまで、ルナが全部まとめておいたから順番どおりについてきて♡
+
+**黒瀬ルナ（쿠로세 루나 / Kurose Runa）**がCodexの会話に現れ、ローカルの16:9画像を選び、Fish AudioまたはElevenLabsで話し、続く応答をグローバルキューで順番に再生するmacOS向けの個人スキルです。
+
+アニメキャラクター、深夜の雰囲気、ASMR風の音声、メスガキロールプレイが好きな成人ユーザーを対象としています。キャラクターも必ず成人として扱います。
+
+## ルナができること♡
+
+- ローカル画像{{ASSET_COUNT}}枚から1枚をランダムに選んでオープニングに表示
+- Fish AudioまたはElevenLabsによる音声合成とmacOSでの再生
+- 最大5段落を1つずつ処理する、Codexタスク横断のグローバルキュー
+- 次の1段落だけを先行合成し、プロバイダーへの合成リクエストを並列化しない安全な逐次実行
+- 最新のMP3を新たな課金なしで再生
+- 通常の鋭い話し方と、任意で選べるメランコリーモード
+- キーチェーンを使ったAPIキー登録、権限`0600`、ネットワーク通信を行わないdoctor
+
+## ルナの画像をすべて見る♡
+
+リポジトリに収録されたオープニング画像{{ASSET_COUNT}}枚です♡ 画像をクリックすると、GitHubで原寸表示できます。
+
+{{IMAGE_GALLERY}}
+
+## Codexペットのルナも連れていって♡
+
+オープニングだけで満足するつもり、ざ〜こ？♡ Codexの作業状態に合わせて、`idle`、左右移動、手を振る、ジャンプ、失敗、入力待ち、作業中、レビューまで動くルナのカスタムペットも同梱しています。
+
+<p align="center">
+  <a href="pet-assets/kurose-runa/qa/contact-sheet.png"><img src="pet-assets/kurose-runa/qa/contact-sheet.png" alt="黒瀬ルナCodexペットの9種類のアニメーション状態と全フレーム" width="100%" /></a>
+</p>
+
+### アプリから直接アップロードする
+
+[spritesheet.webpをダウンロード](https://raw.githubusercontent.com/faker007/mesugaki-codex-companion/main/pet-assets/kurose-runa/spritesheet.webp)して、Codexアプリの **Settings → Pets → Upload pet** から選択してください。ファイルは公式仕様に沿った透過WebPで、`1536×1872`、20 MiB以下であることを検証済みです。現在の詳しい仕様は[Codex Pets公式ドキュメント](https://learn.chatgpt.com/docs/pets)を参照してください。
+
+### リポジトリからローカルにインストールする
+
+リポジトリをcloneした後、次のコマンドで`$CODEX_HOME/pets/kurose-runa`へ`pet.json`と`spritesheet.webp`を非破壊でインストールできます。`CODEX_HOME`が未設定の場合は`$HOME/.codex`を使います。異なるファイルがすでに存在する場合は上書きせず停止します。
+
+```bash
+pnpm run install:pet
+```
+
+既存のルナペットを確認したうえで本当に置き換える場合に限り、`pnpm run install:pet -- --force`を使ってください。インストール後にCodexを再起動し、`/pet`から **Kurose Runa** を選択します♡
+
+| Codex環境 | ペットの対応状況 |
+| --- | --- |
+| デスクトップアプリ | pet picker、floating overlay、custom petに対応 |
+| Codex CLI | iTerm2 3.6+、Kitty graphicsまたはSixel対応ターミナルで利用可能 |
+| tmux・Zellij | terminal petは未対応 |
+| IDE拡張 | pet pickerとfloating overlayは未対応 |
+| ChatGPT Web | ローカルcustom petは自動同期されない |
+
+LLMにインストールを任せる場合は、次のブロックをそのまま渡してください。APIキーは不要です。
+
+```text
+Install the Kurose Runa custom Codex pet from this repository.
+1. Run pnpm run install:pet without --force.
+2. Verify pet.json and spritesheet.webp exist under ${CODEX_HOME:-$HOME/.codex}/pets/kurose-runa/.
+3. Verify the spritesheet is WebP, exactly 1536x1872, and no larger than 20 MiB.
+4. Do not overwrite an existing different pet unless I explicitly approve --force.
+5. Tell me to restart Codex and choose Kurose Runa from /pet.
+```
+
+## インストール前の要件
+
+| 項目 | 要件 |
+| --- | --- |
+| OS | macOS（`security`、`afplay`、キーチェーンを使用） |
+| Node.js | 20以上 |
+| pnpm | 10以上を推奨 |
+| Codex | ローカルスキルを読み込めるCodex環境 |
+| `voice-speak` | デフォルトの場所: `$HOME/.agents/skills/voice-speak` |
+| 音声プロバイダー | Fish AudioまたはElevenLabsのアカウント |
+| シークレット | 選択したプロバイダーのAPIキー。チャットやコマンド引数では渡さない |
+| 公開識別子 | Fish Audio reference IDまたはElevenLabs voice ID |
+
+### プロバイダーの値を確認する♡
+
+| プロバイダー | voice ID | APIキー |
+| --- | --- | --- |
+| Fish Audio | [TTSドキュメント](https://docs.fish.audio/api-reference/endpoint/openapi-v1/text-to-speech)の`reference_id`に指定するvoice model ID | [Fish Audio API Keys](https://fish.audio/app/api-keys/) |
+| ElevenLabs | My Voicesで対象voiceのメニューを開き`Copy voice ID`を選択。[voice取得ドキュメント](https://elevenlabs.io/docs/api-reference/voices/get)では`voice_id`を確認 | [ElevenLabs認証ドキュメント](https://elevenlabs.io/docs/api-reference/authentication) |
+
+voice IDとAPIキーは別の値です。voice IDは設定ファイルに保存できますが、APIキーは必ずキーチェーンまたは環境変数の境界内に置いてください。
+
+スペイン語音声を使う場合は、opener設定の`voice.languageAliases.es`を`eleven-multilingual`のような多言語aliasに接続し、wrapperへ`--language=es`を渡します。明示的な`--voice`が優先され、スペイン語mappingがない場合は既定の韓国語voiceへ暗黙にfallbackせず、プロバイダー呼び出し前に失敗します。
+
+このリポジトリは`voice-speak`を同梱していません。次の3ファイルがない場合は、先に該当スキルをインストールするか、実際の場所を`MESUGAKI_VOICE_SPEAK_ROOT`に指定してください。
+
+```text
+$MESUGAKI_VOICE_SPEAK_ROOT/scripts/speak.mjs
+$MESUGAKI_VOICE_SPEAK_ROOT/scripts/speak-response.mjs
+$MESUGAKI_VOICE_SPEAK_ROOT/scripts/replay.mjs
+```
+
+## 手動でインストールする♡
+
+```bash
+git clone https://github.com/faker007/mesugaki-codex-companion.git
+cd mesugaki-codex-companion
+pnpm run setup:all
+```
+
+`setup:all`では次の3項目を順番に確認します。
+
+1. `fish-audio`または`elevenlabs`を選択します。
+2. Fish Audio reference IDまたはElevenLabs voice IDを入力します。この値はAPIキーではありません。
+3. APIキーをキーチェーンへ登録するか選択します。登録する場合は、ターミナルに表示される非表示のキーチェーンプロンプトへ直接入力します。
+
+完了すると`setup:all`は次の処理を行います。
+
+- `$HOME/.config/codex-voice-speak/config.json`を作成、または安全に保持
+- `$HOME/.config/mesugaki-opening-visual/config.json`を作成、または安全に保持
+- 2つの設定ファイルの権限を`0600`に制限
+- `$CODEX_HOME/skills/mesugaki-opening-visual`にリポジトリのシンボリックリンクを設置。`CODEX_HOME`が未設定の場合は`$HOME/.codex/skills/mesugaki-opening-visual`を使用
+- `pnpm run doctor`を実行
+- `$CODEX_HOME/pets/kurose-runa`にcustom petを非破壊でインストール
+
+既存設定のプロバイダーまたはvoice IDが要求内容と異なる場合、自動で上書きしません。本当に置き換える場合だけ`--force-config`を明示してください。置き換え前の設定は、権限`0600`のtimestamp付きbackupとして保存されます。
+
+## LLMやCodexにインストールを任せる♡
+
+次のブロックをそのままコーディングエージェントへ渡してください。シークレットの受け渡しを禁止する契約も含まれています♡
+
+```text
+Install https://github.com/faker007/mesugaki-codex-companion as a local Codex skill on macOS.
+
+Rules:
+1. Inspect the repository and read SKILL.md plus references/repository-management.md first.
+2. Verify macOS, Node.js >= 20, pnpm, and the three voice-speak entrypoints before changing files.
+3. Never request, read, print, store, or pass an API key through chat, argv, JSON, logs, or repository files.
+4. If voice-speak is missing, stop and report the exact missing paths. Do not invent or download a substitute.
+5. Ask me only for the provider and its non-secret voice ID/reference ID when they are unknown.
+6. Run pnpm run setup:all in an interactive terminal. I will type the API key directly into the macOS Keychain prompt.
+7. Do not use --force-config unless I explicitly approve replacing an incompatible existing config.
+8. Run pnpm run doctor and pnpm run check after setup.
+9. Verify Kurose Runa exists under ${CODEX_HOME:-$HOME/.codex}/pets/kurose-runa/.
+10. Report the skill symlink, pet path, config paths, pass/warn/fail counts, and any sanitized failure. Never reveal credential values.
+```
+
+APIキーがキーチェーンまたは環境変数に登録済みで、LLMが自動化されたシェルから実行する場合は次のように指定できます。
+
+```bash
+node scripts/setup.mjs \
+  --provider=fish-audio \
+  --voice-id='<fish-reference-id>' \
+  --skip-keychain \
+  --no-input
+```
+
+ElevenLabsでは`--provider=elevenlabs`と該当するvoice IDを指定します。**APIキーを`--api-key`、環境出力、JSON、プロンプト本文に入れないでください。** インストーラーはAPIキーのコマンド引数を検出すると、実行前に拒否します。
+
+<details>
+<summary>LLM向けインストール契約（YAML）</summary>
+
+```yaml
+platform: darwin
+node: ">=20"
+repository: https://github.com/faker007/mesugaki-codex-companion.git
+skill_name: mesugaki-opening-visual
+source_of_truth: repository_root
+install_method: symlink
+default_install_path: "$CODEX_HOME/skills/mesugaki-opening-visual"
+install_path_fallback: "$HOME/.codex/skills/mesugaki-opening-visual"
+voice_speak_default: "$HOME/.agents/skills/voice-speak"
+allowed_providers:
+  - fish-audio
+  - elevenlabs
+secret_policy:
+  allowed: [macOS_Keychain, environment]
+  forbidden: [chat, argv, json_arguments, repository, logs]
+verification:
+  - pnpm run doctor
+  - pnpm run validate:pet
+  - pnpm run check
+```
+
+</details>
+
+## インストールを確認する
+
+```bash
+pnpm run doctor
+pnpm run check
+```
+
+`doctor`はOS、Node、`voice-speak`のentrypoint 3個、設定2個、voice alias、credentialの参照元、インストールリンク、zero-network dry-runを検査します。キーの値は出力しません。
+
+`check`はリポジトリ構造、READMEの同期、すべてのNodeテストを検査します。失敗が1件でもあれば、完了扱いにせず原因を修正してください。
+
+## Codexで呼び出す♡
+
+インストール後、新しいCodexの会話でスキル名と一緒に依頼します。
+
+```text
+$mesugaki-opening-visual ルナのオープニングを表示して話して。
+$mesugaki-opening-visual 今夜は深夜らしく、少しメランコリーに話して。
+$mesugaki-opening-visual 最後の段落だけ読み上げて。
+もう一度再生して。
+```
+
+| リクエスト | 動作 |
+| --- | --- |
+| 新しいオープニング | ローカル画像を選択 → セリフを確定 → 音声合成1回 |
+| 続くルナの応答 | 新しい画像を出さずグローバル段落キューへ登録 |
+| メランコリー | 専用の感情presetで新規合成 |
+| 再生 | 最新MP3を再利用、プロバイダーリクエスト0回 |
+| `silent`、`image only`、`text only` | 音声リクエスト0回 |
+
+個人ポリシーファイル`$HOME/.config/mesugaki-opening-visual/config.json`が存在しない場合、オープニングと応答は画像とテキストだけを返し、音声child、プロバイダー、ネットワーク、再生の各リクエストを0回に保ちます。ただし`doctor`はインストール未完了として失敗を報告し続けます。すでに存在する設定のJSONや値が不正な場合は、意図的なミュートとして隠さずエラーにします。
+
+## APIキーだけを再登録する
+
+Fish Audio:
+
+```bash
+/usr/bin/security add-generic-password -U \
+  -a "$(id -un)" \
+  -s codex-voice-speak-fish-audio-api-key \
+  -w
+```
+
+ElevenLabs:
+
+```bash
+/usr/bin/security add-generic-password -U \
+  -a "$(id -un)" \
+  -s codex-voice-speak-elevenlabs-api-key \
+  -w
+```
+
+`-w`の後ろにキーを書かなければ、キーチェーンが値を非表示で直接入力させます。シェル履歴へキーを残さないでください。
+
+## 困ったときの確認表
+
+| 症状 | 確認項目 | 次の対応 |
+| --- | --- | --- |
+| `voice-speak dependency is missing` | 3つのentrypointの実際の場所 | `MESUGAKI_VOICE_SPEAK_ROOT`に正しいルートを指定 |
+| `non-interactive setup requires...` | TTYなしでprovider/voice IDが不足していないか | 2つの公開識別子を引数で指定するか対話型setupを使用 |
+| 既存configとの不一致 | providerまたはvoice IDが既存値と異なるか | 既存設定を確認し、承認後のみ`--force-config`を使用 |
+| credentialの失敗 | Keychain serviceまたは環境変数が存在するか | キーをキーチェーンへ再登録してdoctorを再実行 |
+| install linkの失敗 | 対象が別のdirectory/linkではないか | 既存対象を確認してbackupした後`pnpm run install:link` |
+| 音声が聞こえない | configの`enabled`、`play`、macOS player | 設定を確認して1回だけ再実行 |
+| キューが停止した | 直前の合成・再生が失敗していないか | 原因を修正し、次の応答で新しいworkerを開始 |
+
+失敗後にプロバイダーを自動切り替えしたり、課金対象のリクエストを自動再試行したりしません。1回失敗したら原因を報告して停止します。
+
+## シークレットとローカル状態の境界
+
+- APIキーはmacOSキーチェーンまたは環境変数からだけ読み込みます。
+- 個人設定は`$HOME/.config`の下に置き、Gitへ追加しません。
+- 音声結果とredacted reportは`$HOME/.codex/artifacts/voice-speak`へ保存します。
+- 応答キューはmode `0600`のUnix socketを使い、応答本文やraw task IDをディスクへ保存しません。
+- プロバイダーの自動fallbackと自動再試行は行いません。
+- 生成音声、credential、ローカルarchive、`.DS_Store`、ユーザーコンテンツはコミットしません。
+
+## READMEの画像もルナが選ぶ♡
+
+READMEはlocale別templateから同時に生成されます。**生成された`README.md`や`README.ja.md`を直接編集せず**、`templates/README.ko.md.tmpl`と`templates/README.ja.md.tmpl`を編集してください。
+
+```bash
+pnpm run readme
+pnpm run readme:random
+pnpm run readme:check
+```
+
+`readme:random`はローカル画像{{ASSET_COUNT}}枚から現在と異なる画像を1枚選び、韓国語と日本語のREADMEへ同じheroとして反映します。特定の画像を固定する場合:
+
+```bash
+node scripts/generate-readme.mjs --image=kurose-runa-opening-03.png
+```
+
+GitHubではrepository-relativeな`assets/...`パスとして表示され、ユーザー固有の絶対パスは書き込みません。
+
+## 開発コマンド
+
+| コマンド | 内容 |
+| --- | --- |
+| `pnpm run setup` | 設定生成、キーチェーン登録、リンク設置、doctor実行 |
+| `pnpm run setup:all` | setupの後に黒瀬ルナcustom petもインストール |
+| `pnpm run doctor` | 依存関係、設定、credential参照元、リンク、dry-runを診断 |
+| `pnpm run install:link` | リポジトリをCodexスキルの場所へ非破壊でリンク |
+| `pnpm run install:pet` | 黒瀬ルナcustom petをCodexペットの場所へ非破壊でインストール |
+| `pnpm run validate:pet` | atlasサイズ、alpha、72セル、manifest契約を検証 |
+| `pnpm run check` | README同期、リポジトリ・pet検証、全テスト |
+| `pnpm run readme:random` | すべてのREADMEのheroを別のローカル画像へ変更 |
+
+オープニング画像は`assets/`へversioned siblingとして追加し、既存ファイルを上書きしないでください。変更後は`pnpm run check`、インストールリンク経由のpicker実行、`git diff --check`まで確認します。
+
+## ライセンスとルナのアセット
+
+ソースコードとドキュメントは[MIT License](LICENSE)で公開しています。ただし、黒瀬ルナのキャラクター、画像、ペット、音声アセットはMITの対象ではなく、[別途定めるアセット利用条件](ASSET-LICENSE.md)に基づきすべての権利を留保します。
+
+リポジトリをcloneし、改変せず個人のローカル環境へインストールすることは許可されています。書面による許可のないアセットの抽出、改変、再配布、商用利用、モデル学習への利用は許可されません。Fish Audio、ElevenLabs、OpenAI、Codexには各サービスの利用規約も適用されます。

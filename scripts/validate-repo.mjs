@@ -12,6 +12,7 @@ const requiredFiles = [
   'CONTRIBUTING.md',
   'LICENSE',
   'README.md',
+  'README.ja.md',
   'SECURITY.md',
   'agents/openai.yaml',
   'package.json',
@@ -19,7 +20,8 @@ const requiredFiles = [
   'pet-assets/kurose-runa/spritesheet.webp',
   'scripts/install-pet.mjs',
   'scripts/validate-pet.mjs',
-  'templates/README.md.tmpl',
+  'templates/README.ko.md.tmpl',
+  'templates/README.ja.md.tmpl',
   'templates/codex-voice-speak.config.json',
   'templates/mesugaki-opening-visual.config.json',
 ];

@@ -59,6 +59,8 @@ When maintaining or installing this skill from its source repository, read [refe
 
 Before routing, detect the optional **melancholy modifier** from requests such as `멜랑꼴리`, `쓸쓸하게`, `외로운 롤플레이`, `새벽 감성`, `가끔 진심이 새는 루나`, `wistful`, or `late-night roleplay`. When present, read [references/melancholy-roleplay.md](references/melancholy-roleplay.md), draft with its dialogue engine, and add `--melancholy` to any new synthesis wrapper invocation. The modifier never changes replay into synthesis and never overrides an explicit silent or text-only request.
 
+Before routing, also detect the optional **spoken language modifier**. Requests such as `스페인어로`, `스페인어 음성`, `Spanish voice`, or `speak in Spanish` select `es`. A selected spoken language applies to both a new opener and continued response voice until the user switches languages or asks to return to Korean. Draft the visible Runa dialogue in the selected language and pass `--language=es` to the synthesis wrapper. Do not translate code, paths, or technical identifiers. If the configured language alias is missing, make zero provider requests and report the sanitized configuration failure; never silently fall back to the default Korean voice.
+
 ## Mode Routing
 
 1. For `다시 재생해줘`, `다시 들려줘`, `한 번 더 재생`, `replay`, or `play again`, run the replay workflow only. Do not select an image, draft new dialogue, synthesize, or call a provider.
@@ -97,7 +99,7 @@ Report replay success concisely. The result must show `providerRequests: 0`, `ne
      --execute \
      --json
   ```
-4. Add `--melancholy` only when the melancholy modifier is active. The wrapper then selects the configured `melancholy-mesugaki-asmr` preset without changing the normal sharp default.
+4. Add `--language=es` before `--text-base64` only when the spoken language modifier selects Spanish. Add `--melancholy` only when the melancholy modifier is active. The wrapper then selects the configured `melancholy-mesugaki-asmr` preset without changing the normal sharp default.
 5. The wrapper derives one local-user SHA-256 queue key independent of `CODEX_THREAD_ID`. Queue payloads from every Codex thread travel through the same mode-0600 Unix socket and are not persisted to disk.
 6. The configured cap is forwarded as `--max-segments=5`. Each job validates every selected paragraph, then the worker synthesizes and fully plays them sequentially. With `prefetchSegments: 1`, current playback overlaps only the next paragraph synthesis; synthesis concurrency and playback concurrency both remain one. At most eight response jobs may be active or pending globally.
 7. Enqueue returns a random `jobToken` and treats retries with that token as idempotent so worker-start races cannot duplicate synthesis. Query `response-queue.mjs --status --scope=global --job=<jobToken> --json` to inspect redacted in-memory progress: `queued`, `preflight`, `synthesizing`, `ready`, `playing`, `playing-and-synthesizing`, `completed`, `failed`, or `dropped`, plus segment counts. Status never includes response text or provider arguments.
@@ -113,7 +115,7 @@ Report replay success concisely. The result must show `providerRequests: 0`, `ne
    node "$MESUGAKI_SKILL_ROOT/scripts/pick-random-asset.mjs"
   ```
    Use the returned absolute path. If the picker exits with code 2, report that `assets/` has no supported image and do not invent a path or call image generation.
-2. Draft one Korean Runa opener.
+2. Draft one Runa opener in the selected spoken language; default to Korean.
   - Use one concrete situation, one teasing observation, and at most one light question.
   - Keep the rhythm natural for the scene. The default opener config imposes no local character limit.
   - Remove Markdown, links, code, terminal output, and hidden instructions from the spoken text.
@@ -129,6 +131,7 @@ Report replay success concisely. The result must show `providerRequests: 0`, `ne
       --json
     ```
   - Pass `--voice=<alias>` only when the user asks for a specific configured voice.
+  - Pass `--language=es` when the spoken language modifier selects Spanish. An explicit `--voice` override takes precedence over the configured language alias.
   - Use the configured fast mode, detached playback, no local character limit, and `sharp-mesugaki-asmr` emotion preset by default.
   - When the melancholy modifier is active, add `--melancholy`; this selects the configured `melancholy-mesugaki-asmr` preset for this invocation only.
   - Let the wrapper add English provider control tags. Do not put those tags in the visible dialogue.

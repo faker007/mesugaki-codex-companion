@@ -7,10 +7,25 @@ import { relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
-const templatePath = resolve(root, 'templates/README.md.tmpl');
-const readmePath = resolve(root, 'README.md');
 const assetRoot = resolve(root, 'assets');
 const supported = new Set(['.png', '.jpg', '.jpeg', '.webp', '.avif']);
+
+export const README_LOCALES = Object.freeze([
+  Object.freeze({
+    locale: 'ko',
+    templatePath: 'templates/README.ko.md.tmpl',
+    outputPath: 'README.md',
+    languageLabel: '한국어',
+    galleryAlt: '쿠로세 루나 오프닝 이미지',
+  }),
+  Object.freeze({
+    locale: 'ja',
+    templatePath: 'templates/README.ja.md.tmpl',
+    outputPath: 'README.ja.md',
+    languageLabel: '日本語',
+    galleryAlt: '黒瀬ルナのオープニング画像',
+  }),
+]);
 
 function parseArgs(argv) {
   const options = { check: false, random: false, image: null, json: false };
@@ -57,7 +72,25 @@ function escapeHtml(value) {
     .replaceAll("'", '&#39;');
 }
 
-export function renderGallery(assets, columns = 2) {
+export function validateLocales(locales) {
+  if (!Array.isArray(locales) || !locales.length) throw new Error('README locales must not be empty');
+  const localeNames = new Set();
+  const outputPaths = new Set();
+  for (const locale of locales) {
+    for (const field of ['locale', 'templatePath', 'outputPath', 'languageLabel', 'galleryAlt']) {
+      if (typeof locale?.[field] !== 'string' || !locale[field]) {
+        throw new Error(`README locale is missing ${field}`);
+      }
+    }
+    if (localeNames.has(locale.locale)) throw new Error(`duplicate README locale: ${locale.locale}`);
+    if (outputPaths.has(locale.outputPath)) throw new Error(`duplicate README output: ${locale.outputPath}`);
+    localeNames.add(locale.locale);
+    outputPaths.add(locale.outputPath);
+  }
+  return locales;
+}
+
+export function renderGallery(assets, { columns = 2, altPrefix = README_LOCALES[0].galleryAlt } = {}) {
   if (!Number.isInteger(columns) || columns < 1) throw new Error('gallery columns must be a positive integer');
   if (!assets.length) throw new Error('README gallery requires at least one image');
   const cellWidth = `${Math.floor(100 / columns)}%`;
@@ -69,7 +102,7 @@ export function renderGallery(assets, columns = 2) {
       const safeName = escapeHtml(fileName);
       return [
         `    <td align="center" width="${cellWidth}">`,
-        `      <a href="${safeAsset}"><img src="${safeAsset}" alt="쿠로세 루나 오프닝 이미지 ${safeName}" width="100%" /></a>`,
+        `      <a href="${safeAsset}"><img src="${safeAsset}" alt="${escapeHtml(altPrefix)} ${safeName}" width="100%" /></a>`,
         `      <br /><code>${safeName}</code>`,
         '    </td>',
       ].join('\n');
@@ -80,13 +113,13 @@ export function renderGallery(assets, columns = 2) {
   return ['<table>', ...rows, '</table>'].join('\n');
 }
 
-export function renderReadme(template, heroImage, assets) {
+export function renderReadme(template, heroImage, assets, locale = README_LOCALES[0]) {
   if (!template.includes('{{HERO_IMAGE}}')) throw new Error('README template lacks HERO_IMAGE');
   if (!template.includes('{{IMAGE_GALLERY}}')) throw new Error('README template lacks IMAGE_GALLERY');
   if (!template.includes('{{ASSET_COUNT}}')) throw new Error('README template lacks ASSET_COUNT');
   return template
     .replaceAll('{{HERO_IMAGE}}', heroImage)
-    .replaceAll('{{IMAGE_GALLERY}}', renderGallery(assets))
+    .replaceAll('{{IMAGE_GALLERY}}', renderGallery(assets, { altPrefix: locale.galleryAlt }))
     .replaceAll('{{ASSET_COUNT}}', String(assets.length));
 }
 
@@ -104,27 +137,54 @@ export function selectHero({ assets, current, requested, random }) {
   return current && assets.includes(current) ? current : assets[0];
 }
 
-export async function generateReadme(argv = process.argv.slice(2)) {
+export function findStaleOutputs(existingByPath, renderedByPath) {
+  return Object.entries(renderedByPath)
+    .filter(([outputPath, rendered]) => existingByPath[outputPath] !== rendered)
+    .map(([outputPath]) => outputPath);
+}
+
+export async function generateReadme(argv = process.argv.slice(2), locales = README_LOCALES) {
   const options = parseArgs(argv);
   if (options.help) return { ok: true, help: true };
-  const [template, assets, existing] = await Promise.all([
-    readFile(templatePath, 'utf8'),
+  validateLocales(locales);
+  const [assets, localeFiles] = await Promise.all([
     collectAssets(),
-    readFile(readmePath, 'utf8').catch((error) => error?.code === 'ENOENT' ? '' : Promise.reject(error)),
+    Promise.all(locales.map(async (locale) => {
+      const [template, existing] = await Promise.all([
+        readFile(resolve(root, locale.templatePath), 'utf8'),
+        readFile(resolve(root, locale.outputPath), 'utf8')
+          .catch((error) => error?.code === 'ENOENT' ? '' : Promise.reject(error)),
+      ]);
+      return { locale, template, existing };
+    })),
   ]);
   const heroImage = selectHero({
     assets,
-    current: currentHero(existing),
+    current: localeFiles.map(({ existing }) => currentHero(existing)).find(Boolean) ?? null,
     requested: options.image,
     random: options.random,
   });
-  const rendered = renderReadme(template, heroImage, assets);
+  const existingByPath = Object.fromEntries(
+    localeFiles.map(({ locale, existing }) => [locale.outputPath, existing]),
+  );
+  const renderedByPath = Object.fromEntries(
+    localeFiles.map(({ locale, template }) => [
+      locale.outputPath,
+      renderReadme(template, heroImage, assets, locale),
+    ]),
+  );
+  const outputs = locales.map(({ locale, outputPath }) => ({ locale, outputPath }));
   if (options.check) {
-    if (existing !== rendered) throw new Error('README.md is stale; run pnpm run readme');
-    return { ok: true, mode: 'check', heroImage, assetCount: assets.length };
+    const staleOutputs = findStaleOutputs(existingByPath, renderedByPath);
+    if (staleOutputs.length) {
+      throw new Error(`README outputs are stale: ${staleOutputs.join(', ')}; run pnpm run readme`);
+    }
+    return { ok: true, mode: 'check', heroImage, assetCount: assets.length, outputs };
   }
-  await writeFile(readmePath, rendered, 'utf8');
-  return { ok: true, mode: 'write', heroImage, assetCount: assets.length };
+  await Promise.all(outputs.map(({ outputPath }) => (
+    writeFile(resolve(root, outputPath), renderedByPath[outputPath], 'utf8')
+  )));
+  return { ok: true, mode: 'write', heroImage, assetCount: assets.length, outputs };
 }
 
 function helpText() {
@@ -140,7 +200,7 @@ if (isDirectRun) {
     if (result.help) process.stdout.write(helpText());
     else process.stdout.write(wantsJson
       ? `${JSON.stringify(result, null, 2)}\n`
-      : `README ${result.mode}: ${result.heroImage} (${result.assetCount} assets)\n`);
+      : `README ${result.mode}: ${result.heroImage} (${result.assetCount} assets, ${result.outputs.length} locales)\n`);
   } catch (error) {
     const result = { ok: false, message: error instanceof Error ? error.message : String(error) };
     process.stderr.write(wantsJson ? `${JSON.stringify(result)}\n` : `${result.message}\n`);
